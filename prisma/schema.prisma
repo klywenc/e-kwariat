@@ -21,7 +21,7 @@ model Adres {
   kodPocztowy     String    @map("Kod_Pocztowy") @db.VarChar(10)
   miasto          String    @db.VarChar(100)
   kraj            String    @default("Polska") @db.VarChar(100)
-  czyDomyslny     Boolean   @default(false) @map("Czy_Domyslny") // NUMBER(1) -> Boolean
+  czyDomyslny     Boolean   @default(false) @map("Czy_Domyslny")
   uzytkownikId    Int       @map("ID_Uzytkownika")
   uzytkownik      Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade, map: "Adresy_Uzytkownicy_FK")
   zamowienia      Zamowienie[] // Relacja zwrotna z Zamowienie (adres dostawy)
@@ -34,7 +34,7 @@ model Autor {
   imie     String?  @db.VarChar(100)
   nazwisko String   @db.VarChar(150)
   opis     String?  @db.Text // CLOB -> Text
-  ksiazki  Ksiazka[] @relation("KsiazkaAutor") // Relacja M:N
+  ksiazki  Ksiazka[] @relation("KsiazkaAutor") // M:N
 
   @@map("Autorzy")
 }
@@ -43,7 +43,7 @@ model Gatunek {
   id      Int      @id @default(autoincrement()) @map("ID_Gatunku")
   nazwa   String   @unique(map: "Gatunki_Nazwa_UN") @db.VarChar(100)
   opis    String?  @db.VarChar(500)
-  ksiazki Ksiazka[] @relation("KsiazkaGatunek") // Relacja M:N
+  ksiazki Ksiazka[] @relation("KsiazkaGatunek") // M:N
 
   @@map("Gatunki")
 }
@@ -51,19 +51,19 @@ model Gatunek {
 model Ksiazka {
   id                 Int            @id @default(autoincrement()) @map("ID_Ksiazki")
   tytul              String         @db.VarChar(300)
-  rokWydania         Int?           @map("Rok_Wydania") // NUMBER(4) -> Int
-  cena               Decimal        @db.Decimal(10, 2) // NUMBER(10, 2) -> Decimal
+  rokWydania         Int?           @map("Rok_Wydania") 
+  cena               Decimal        @db.Decimal(10, 2) 
   opisStanu          String         @map("Opis_Stanu") @db.VarChar(500)
-  dataDodania        DateTime       @default(now()) @map("Data_Dodania") @db.Timestamp(0) // DATE -> DateTime
-  dataModyfikacji    DateTime?      @updatedAt @map("Data_Modyfikacji") @db.Timestamp(0) // @updatedAt automatycznie aktualizuje
+  dataDodania        DateTime       @default(now()) @map("Data_Dodania") @db.Timestamp(0) 
+  dataModyfikacji    DateTime?      @updatedAt @map("Data_Modyfikacji") @db.Timestamp(0) 
   statusKsiazkiId    Int            @map("ID_Statusu_Ksiazki")
   statusKsiazki      StatusKsiazki  @relation(fields: [statusKsiazkiId], references: [id], onDelete: Restrict, map: "Ksiazki_StatusyKsiazek_FK")
-  autorzy            Autor[]        @relation("KsiazkaAutor") // Relacja M:N
-  gatunki            Gatunek[]      @relation("KsiazkaGatunek") // Relacja M:N
-  zdjecia            ZdjecieKsiazki[] // Relacja 1:N
-  rezerwacje         Rezerwacja[]   // Relacja 1:N
-  pozycjeZamowien    PozycjaZamowienia[] // Relacja 1:N
-  zgloszeniePowiazane ZgloszenieKsiazki? @relation("KsiazkaZeZgloszenia") // Relacja 1:1 (opcjonalna)
+  autorzy            Autor[]        @relation("KsiazkaAutor") // M:N
+  gatunki            Gatunek[]      @relation("KsiazkaGatunek") // M:N
+  zdjecia            ZdjecieKsiazki[] // 1:N
+  rezerwacje         Rezerwacja[]   // 1:N
+  pozycjeZamowien    PozycjaZamowienia[] // 1:N
+  zgloszeniePowiazane ZgloszenieKsiazki? @relation("KsiazkaZeZgloszenia") // 1:1 
 
   @@map("Ksiazki")
 }
@@ -74,7 +74,7 @@ model MetodaDostawy {
   koszt                   Decimal  @db.Decimal(8, 2)
   przewidywanyCzasDostawy String?  @map("Przewidywany_Czas_Dostawy") @db.VarChar(100)
   czyAktywna              Boolean  @default(true) @map("Czy_Aktywna")
-  zamowienia              Zamowienie[] // Relacja zwrotna
+  zamowienia              Zamowienie[] 
 
   @@map("MetodyDostawy")
 }
@@ -84,7 +84,7 @@ model MetodaPlatnosci {
   nazwa       String   @db.VarChar(100)
   opis        String?  @db.VarChar(500)
   czyAktywna  Boolean  @default(true) @map("Czy_Aktywna")
-  platnosci   Platnosc[] // Relacja zwrotna
+  platnosci   Platnosc[] 
 
   @@map("MetodyPlatnosci")
 }
@@ -93,7 +93,7 @@ model Platnosc {
   id                Int            @id @default(autoincrement()) @map("ID_Platnosci")
   kwota             Decimal        @db.Decimal(10, 2)
   dataPlatnosci     DateTime?      @map("Data_Platnosci") @db.Timestamp(0)
-  statusPlatnosci   StatusPlatnosciEnum @map("Status_Platnosci") // Użycie Enum zamiast String
+  statusPlatnosci   StatusPlatnosciEnum @map("Status_Platnosci") 
   idTransakcjiZewn  String?        @map("Id_Transakcji_Zewn") @db.VarChar(255)
   zamowienieId      Int            @map("ID_Zamowienia")
   metodaPlatnosciId Int            @map("ID_Metody_Platnosci")
@@ -103,15 +103,13 @@ model Platnosc {
   @@map("Platnosci")
 }
 
-// Enum dla statusów płatności
 enum StatusPlatnosciEnum {
   Oczekujaca
   Udana
   Nieudana
   Anulowana
-  Zwrócona // Zamiast 'Zwrócona' jak w komentarzu DDL, używam 'Zwrócona'
-  // Mapowanie na wartości bazodanowe, jeśli są inne niż nazwy enum
-  @@map("status_platnosci_enum") // Opcjonalna nazwa typu w bazie
+  Zwrócona 
+  @@map("status_platnosci_enum") 
 }
 
 
@@ -124,7 +122,7 @@ model PozycjaZamowienia {
   zamowienie        Zamowienie @relation(fields: [zamowienieId], references: [id], onDelete: Cascade, map: "PozZam_Zamowienia_FK")
   ksiazka           Ksiazka    @relation(fields: [ksiazkaId], references: [id], onDelete: Restrict, map: "PozZam_Ksiazki_FK")
 
-  @@unique([zamowienieId, ksiazkaId], map: "PozZam_Uniq_Zam_Ksiazka") // Constraint unikalności
+  @@unique([zamowienieId, ksiazkaId], map: "PozZam_Uniq_Zam_Ksiazka") 
   @@map("PozycjeZamowien")
 }
 
@@ -138,16 +136,14 @@ model Rezerwacja {
   ksiazkaId         Int       @map("ID_Ksiazki")
   uzytkownik        Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade, map: "Rezerwacje_Uzytkownicy_FK")
   ksiazka           Ksiazka    @relation(fields: [ksiazkaId], references: [id], onDelete: Cascade, map: "Rezerwacje_Ksiazki_FK")
-  // Unikalność aktywnej rezerwacji na książkę wymaga logiki aplikacyjnej lub triggera bazodanowego
 
   @@map("Rezerwacje")
 }
 
-// Enum dla statusów rezerwacji
 enum StatusRezerwacjiEnum {
   Aktywna
   Anulowana
-  Zakonczona // Zamiast 'Zakończona'
+  Zakonczona 
 
   @@map("status_rezerwacji_enum")
 }
@@ -155,7 +151,7 @@ enum StatusRezerwacjiEnum {
 model Rola {
   id          Int      @id @default(autoincrement()) @map("ID_Roli")
   nazwa       String   @unique(map: "Role_Nazwa_UN") @db.VarChar(50)
-  uzytkownicy Uzytkownik[] // Relacja zwrotna
+  uzytkownicy Uzytkownik[] 
 
   @@map("Role")
 }
@@ -163,7 +159,7 @@ model Rola {
 model StatusKsiazki {
   id    Int      @id @default(autoincrement()) @map("ID_Statusu_Ksiazki")
   nazwa String   @unique(map: "StatusyKsiazek_Nazwa_UN") @db.VarChar(50)
-  ksiazki Ksiazka[] // Relacja zwrotna
+  ksiazki Ksiazka[] 
 
   @@map("StatusyKsiazek")
 }
@@ -172,7 +168,7 @@ model StatusZamowienia {
   id         Int      @id @default(autoincrement()) @map("ID_Statusu_Zamowienia")
   nazwa      String   @unique(map: "StatusyZamowien_Nazwa_UN") @db.VarChar(50)
   opis       String?  @db.VarChar(255)
-  zamowienia Zamowienie[] // Relacja zwrotna
+  zamowienia Zamowienie[] 
 
   @@map("StatusyZamowien")
 }
@@ -189,11 +185,11 @@ model Uzytkownik {
   dataWaznTokenu    DateTime? @map("Data_Wazn_Tokenu") @db.Timestamp(0)
   rolaId            Int       @map("ID_Roli")
   rola              Rola      @relation(fields: [rolaId], references: [id], onDelete: Restrict, map: "Uzytkownicy_Role_FK")
-  adresy            Adres[]   // Relacja 1:N
-  zamowienia        Zamowienie[] // Relacja 1:N
-  rezerwacje        Rezerwacja[] // Relacja 1:N
-  zgloszenia        ZgloszenieKsiazki[] @relation("ZgloszeniaZglaszajacego") // Zgłoszenia zrobione przez tego użytkownika
-  ocenioneZgloszenia ZgloszenieKsiazki[] @relation("ZgloszeniaOcenione") // Zgłoszenia ocenione przez tego admina
+  adresy            Adres[]   // 1:N
+  zamowienia        Zamowienie[] // 1:N
+  rezerwacje        Rezerwacja[] // 1:N
+  zgloszenia        ZgloszenieKsiazki[] @relation("ZgloszeniaZglaszajacego") 
+  ocenioneZgloszenia ZgloszenieKsiazki[] @relation("ZgloszeniaOcenione") 
 
   @@map("Uzytkownicy")
 }
@@ -214,8 +210,8 @@ model Zamowienie {
   adresDostawy       Adres           @relation(fields: [adresDostawyId], references: [id], onDelete: Restrict, map: "Zamowienia_Adresy_FK")
   metodaDostawy      MetodaDostawy   @relation(fields: [metodaDostawyId], references: [id], onDelete: Restrict, map: "Zamowienia_MetodyDostawy_FK")
   statusZamowienia   StatusZamowienia @relation(fields: [statusZamowieniaId], references: [id], onDelete: Restrict, map: "Zamowienia_StatusyZam_FK")
-  pozycje            PozycjaZamowienia[] // Relacja 1:N
-  platnosci          Platnosc[]      // Relacja 1:N
+  pozycje            PozycjaZamowienia[] // 1:N
+  platnosci          Platnosc[]      // 1:N
 
   @@map("Zamowienia")
 }
@@ -253,7 +249,7 @@ model ZgloszenieKsiazki {
 
 enum StatusZgloszeniaEnum {
   Nowe
-  W_ocenie @map("W ocenie") // Mapowanie, jeśli nazwa w bazie ma spację
+  W_ocenie @map("W ocenie")
   Zaakceptowane
   Odrzucone
 
