@@ -24,7 +24,7 @@ model Adres {
   czyDomyslny     Boolean   @default(false) @map("Czy_Domyslny")
   uzytkownikId    Int       @map("ID_Uzytkownika")
   uzytkownik      Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade, map: "Adresy_Uzytkownicy_FK")
-  zamowienia      Zamowienie[] // Relacja zwrotna z Zamowienie (adres dostawy)
+  zamowienia      Zamowienie[] 
 
   @@map("Adresy")
 }
