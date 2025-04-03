@@ -165,12 +165,14 @@ model StatusZamowienia {
   @@map("StatusyZamowien")
 }
 
-model Uzytkownik {
+model user {
   id                Int       @id @default(autoincrement()) @map("ID_Uzytkownika")
   email             String    @unique(map: "Uzytkownicy_Email_UN")
   hasloHash         String    @map("Haslo_Hash")
   imie              String?
   nazwisko          String?
+  name              String?
+  password          String?
   dataRejestracji   DateTime  @default(now()) @map("Data_Rejestracji")
   czyAktywny        Boolean   @default(true) @map("Czy_Aktywny")
   tokenResetHasla   String?   @map("Token_Reset_Hasla")
@@ -178,12 +180,18 @@ model Uzytkownik {
   rolaId            Int       @map("ID_Roli")
   rola              Rola      @relation(fields: [rolaId], references: [id], onDelete: Restrict) // Usunięto map
   adresy            Adres[]
+  role              Role @default(USER)
   zamowienia        Zamowienie[]
   rezerwacje        Rezerwacja[]
   zgloszenia        ZgloszenieKsiazki[] @relation("ZgloszeniaZglaszajacego")
   ocenioneZgloszenia ZgloszenieKsiazki[] @relation("ZgloszeniaOcenione")
 
   @@map("Uzytkownicy")
+}
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
 }
 
 model Zamowienie {
