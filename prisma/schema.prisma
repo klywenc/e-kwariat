@@ -7,242 +7,238 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-model Adres {
-  id              Int       @id @default(autoincrement()) @map("ID_Adresu")
-  ulica           String
-  numerDomu       String    @map("Numer_Domu")
-  numerMieszkania String?   @map("Numer_Mieszkania")
-  kodPocztowy     String    @map("Kod_Pocztowy")
-  miasto          String
-  kraj            String    @default("Polska")
-  czyDomyslny     Boolean   @default(false) @map("Czy_Domyslny")
-  uzytkownikId    Int       @map("ID_Uzytkownika")
-  uzytkownik      Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) // Usunięto map
-  zamowienia      Zamowienie[]
-
-  @@map("Adresy")
+enum Role {
+  USER
+  ADMIN
 }
 
-model Autor {
-  id       Int      @id @default(autoincrement()) @map("ID_Autora")
-  imie     String?
-  nazwisko String
-  opis     String?
-  ksiazki  Ksiazka[] @relation("KsiazkaAutor")
+model Address {
+  id              Int     @id @default(autoincrement()) @map("address_id")
+  street          String
+  houseNumber     String  @map("house_number")
+  apartmentNumber String? @map("apartment_number")
+  postalCode      String  @map("postal_code")
+  city            String
+  country         String  @default("Poland")
+  isDefault       Boolean @default(false) @map("is_default")
+  userId          Int     @map("user_id")
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders          Order[] @relation("DeliveryAddress") // Relation name for clarity
 
-  @@map("Autorzy")
+  @@map("addresses")
 }
 
-model Gatunek {
-  id      Int      @id @default(autoincrement()) @map("ID_Gatunku")
-  nazwa   String   @unique(map: "Gatunki_Nazwa_UN")
-  opis    String?
-  ksiazki Ksiazka[] @relation("KsiazkaGatunek")
+model Author {
+  id          Int     @id @default(autoincrement()) @map("author_id")
+  firstName   String?
+  lastName    String
+  description String?
+  books       Book[]  @relation("BookAuthor")
 
-  @@map("Gatunki")
+  @@map("authors")
 }
 
-model Ksiazka {
-  id                 Int            @id @default(autoincrement()) @map("ID_Ksiazki")
-  tytul              String
-  rokWydania         Int?           @map("Rok_Wydania")
-  cena               Decimal
-  opisStanu          String         @map("Opis_Stanu")
-  dataDodania        DateTime       @default(now()) @map("Data_Dodania")
-  dataModyfikacji    DateTime?      @updatedAt @map("Data_Modyfikacji")
-  statusKsiazkiId    Int            @map("ID_Statusu_Ksiazki")
-  statusKsiazki      StatusKsiazki  @relation(fields: [statusKsiazkiId], references: [id], onDelete: Restrict) // Usunięto map
-  autorzy            Autor[]        @relation("KsiazkaAutor")
-  gatunki            Gatunek[]      @relation("KsiazkaGatunek")
-  zdjecia            ZdjecieKsiazki[]
-  rezerwacje         Rezerwacja[]
-  pozycjeZamowien    PozycjaZamowienia[]
-  zgloszeniePowiazane ZgloszenieKsiazki? @relation("KsiazkaZeZgloszenia")
+model Genre {
+  id          Int     @id @default(autoincrement()) @map("genre_id")
+  name        String  @unique @map("name") // Simplified map
+  description String?
+  books       Book[]  @relation("BookGenre")
 
-  @@map("Ksiazki")
+  @@map("genres")
 }
 
-model MetodaDostawy {
-  id                      Int      @id @default(autoincrement()) @map("ID_Metody_Dostawy")
-  nazwa                   String
-  koszt                   Decimal
-  przewidywanyCzasDostawy String?  @map("Przewidywany_Czas_Dostawy")
-  czyAktywna              Boolean  @default(true) @map("Czy_Aktywna")
-  zamowienia              Zamowienie[]
+model Book {
+  id                   Int             @id @default(autoincrement()) @map("book_id")
+  title                String
+  publicationYear      Int?            @map("publication_year")
+  price                Decimal
+  conditionDescription String          @map("condition_description")
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime?       @updatedAt @map("updated_at")
+  bookStatusId         Int             @map("book_status_id")
+  bookStatus           BookStatus      @relation(fields: [bookStatusId], references: [id], onDelete: Restrict)
+  authors              Author[]        @relation("BookAuthor")
+  genres               Genre[]         @relation("BookGenre")
+  images               BookImage[]
+  reservations         Reservation[]
+  orderItems           OrderItem[]
+  relatedSubmission    BookSubmission? @relation("BookFromSubmission")
 
-  @@map("MetodyDostawy")
+  @@map("books")
 }
 
-model MetodaPlatnosci {
-  id          Int      @id @default(autoincrement()) @map("ID_Metody_Platnosci")
-  nazwa       String
-  opis        String?
-  czyAktywna  Boolean  @default(true) @map("Czy_Aktywna")
-  platnosci   Platnosc[]
+model DeliveryMethod {
+  id                    Int     @id @default(autoincrement()) @map("delivery_method_id")
+  name                  String
+  cost                  Decimal
+  estimatedDeliveryTime String? @map("estimated_delivery_time")
+  isActive              Boolean @default(true) @map("is_active")
+  orders                Order[]
 
-  @@map("MetodyPlatnosci")
+  @@map("delivery_methods")
 }
 
-model Platnosc {
-  id                Int            @id @default(autoincrement()) @map("ID_Platnosci")
-  kwota             Decimal
-  dataPlatnosci     DateTime?      @map("Data_Platnosci")
-  statusPlatnosci   StatusPlatnosciEnum @map("Status_Platnosci")
-  idTransakcjiZewn  String?        @map("Id_Transakcji_Zewn")
-  zamowienieId      Int            @map("ID_Zamowienia")
-  metodaPlatnosciId Int            @map("ID_Metody_Platnosci")
-  zamowienie        Zamowienie     @relation(fields: [zamowienieId], references: [id], onDelete: Cascade) // Usunięto map
-  metodaPlatnosci   MetodaPlatnosci @relation(fields: [metodaPlatnosciId], references: [id], onDelete: Restrict) // Usunięto map
+model PaymentMethod {
+  id          Int       @id @default(autoincrement()) @map("payment_method_id")
+  name        String
+  description String?
+  isActive    Boolean   @default(true) @map("is_active")
+  payments    Payment[]
 
-  @@map("Platnosci")
+  @@map("payment_methods")
 }
 
-enum StatusPlatnosciEnum {
-  Oczekujaca
-  Udana
-  Nieudana
-  Anulowana
-  Zwrócona
-  @@map("status_platnosci_enum")
+model Payment {
+  id                    Int             @id @default(autoincrement()) @map("payment_id")
+  amount                Decimal
+  paymentDate           DateTime?       @map("payment_date")
+  paymentStatus         PaymentStatusEnum @map("payment_status")
+  externalTransactionId String?         @map("external_transaction_id")
+  orderId               Int             @map("order_id")
+  paymentMethodId       Int             @map("payment_method_id")
+  order                 Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  paymentMethod         PaymentMethod   @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
+
+  @@map("payments")
 }
 
-model PozycjaZamowienia {
-  id                Int       @id @default(autoincrement()) @map("ID_Pozycji_Zamowienia")
-  ilosc             Int       @default(1)
-  cenaJednostkowa   Decimal   @map("Cena_Jednostkowa")
-  zamowienieId      Int       @map("ID_Zamowienia")
-  ksiazkaId         Int       @map("ID_Ksiazki")
-  zamowienie        Zamowienie @relation(fields: [zamowienieId], references: [id], onDelete: Cascade) // Usunięto map
-  ksiazka           Ksiazka    @relation(fields: [ksiazkaId], references: [id], onDelete: Restrict) // Usunięto map
-
-  @@unique([zamowienieId, ksiazkaId], map: "PozZam_Uniq_Zam_Ksiazka")
-  @@map("PozycjeZamowien")
+enum PaymentStatusEnum {
+  Pending
+  Successful
+  Failed
+  Cancelled
+  Refunded
+  @@map("payment_status_enum")
 }
 
-model Rezerwacja {
-  id                Int       @id @default(autoincrement()) @map("ID_Rezerwacji")
-  dataRozpoczecia   DateTime  @map("Data_Rozpoczecia")
-  dataZakonczenia   DateTime  @map("Data_Zakonczenia")
-  statusRezerwacji  StatusRezerwacjiEnum @default(Aktywna) @map("Status_Rezerwacji")
-  dataAnulowania    DateTime? @map("Data_Anulowania")
-  uzytkownikId      Int       @map("ID_Uzytkownika")
-  ksiazkaId         Int       @map("ID_Ksiazki")
-  uzytkownik        Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) // Usunięto map
-  ksiazka           Ksiazka    @relation(fields: [ksiazkaId], references: [id], onDelete: Cascade) // Usunięto map
+model OrderItem {
+  id        Int     @id @default(autoincrement()) @map("order_item_id")
+  quantity  Int     @default(1)
+  unitPrice Decimal @map("unit_price")
+  orderId   Int     @map("order_id")
+  bookId    Int     @map("book_id")
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  book      Book    @relation(fields: [bookId], references: [id], onDelete: Restrict)
 
-  @@map("Rezerwacje")
+  @@unique([orderId, bookId], map: "order_items_uniq_order_book")
+  @@map("order_items")
 }
 
-enum StatusRezerwacjiEnum {
-  Aktywna
-  Anulowana
-  Zakonczona
-  @@map("status_rezerwacji_enum")
+model Reservation {
+  id                Int                   @id @default(autoincrement()) @map("reservation_id")
+  startDate         DateTime              @map("start_date")
+  endDate           DateTime              @map("end_date")
+  reservationStatus ReservationStatusEnum @default(Active) @map("reservation_status")
+  cancellationDate  DateTime?             @map("cancellation_date")
+  userId            Int                   @map("user_id")
+  bookId            Int                   @map("book_id")
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book              Book                  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("reservations")
 }
 
-model Rola {
-  id          Int      @id @default(autoincrement()) @map("ID_Roli")
-  nazwa       String   @unique(map: "Role_Nazwa_UN")
-  uzytkownicy Uzytkownik[]
-
-  @@map("Role")
+enum ReservationStatusEnum {
+  Active
+  Cancelled
+  Completed
+  @@map("reservation_status_enum")
 }
 
-model StatusKsiazki {
-  id    Int      @id @default(autoincrement()) @map("ID_Statusu_Ksiazki")
-  nazwa String   @unique(map: "StatusyKsiazek_Nazwa_UN")
-  ksiazki Ksiazka[]
+model BookStatus {
+  id    Int    @id @default(autoincrement()) @map("book_status_id")
+  name  String @unique @map("name") // Simplified map
+  books Book[]
 
-  @@map("StatusyKsiazek")
+  @@map("book_statuses")
 }
 
-model StatusZamowienia {
-  id         Int      @id @default(autoincrement()) @map("ID_Statusu_Zamowienia")
-  nazwa      String   @unique(map: "StatusyZamowien_Nazwa_UN")
-  opis       String?
-  zamowienia Zamowienie[]
+model OrderStatus {
+  id          Int     @id @default(autoincrement()) @map("order_status_id")
+  name        String  @unique @map("name") // Simplified map
+  description String?
+  orders      Order[]
 
-  @@map("StatusyZamowien")
+  @@map("order_statuses")
 }
 
-model Uzytkownik {
-  id                Int       @id @default(autoincrement()) @map("ID_Uzytkownika")
-  email             String    @unique(map: "Uzytkownicy_Email_UN")
-  hasloHash         String    @map("Haslo_Hash")
-  imie              String?
-  nazwisko          String?
-  dataRejestracji   DateTime  @default(now()) @map("Data_Rejestracji")
-  czyAktywny        Boolean   @default(true) @map("Czy_Aktywny")
-  tokenResetHasla   String?   @map("Token_Reset_Hasla")
-  dataWaznTokenu    DateTime? @map("Data_Wazn_Tokenu")
-  rolaId            Int       @map("ID_Roli")
-  rola              Rola      @relation(fields: [rolaId], references: [id], onDelete: Restrict) // Usunięto map
-  adresy            Adres[]
-  zamowienia        Zamowienie[]
-  rezerwacje        Rezerwacja[]
-  zgloszenia        ZgloszenieKsiazki[] @relation("ZgloszeniaZglaszajacego")
-  ocenioneZgloszenia ZgloszenieKsiazki[] @relation("ZgloszeniaOcenione")
+model User {
+  id                 Int              @id @default(autoincrement()) @map("user_id")
+  email              String           @unique @map("email") // Simplified map
+  passwordHash       String           @map("password_hash")
+  firstName          String?
+  lastName           String?
+  createdAt          DateTime         @default(now()) @map("created_at")
+  isActive           Boolean          @default(true) @map("is_active")
+  passwordResetToken String?          @map("password_reset_token")
+  tokenExpiryDate    DateTime?        @map("token_expiry_date")
+  role               Role             @default(USER) // Added Role enum field
+  addresses          Address[]
+  orders             Order[]
+  reservations       Reservation[]
+  submissions        BookSubmission[] @relation("UserSubmissions")
+  reviewedSubmissions BookSubmission[] @relation("AdminReviewedSubmissions")
 
-  @@map("Uzytkownicy")
+  @@map("users")
 }
 
-model Zamowienie {
-  id                 Int             @id @default(autoincrement()) @map("ID_Zamowienia")
-  numerZamowienia    String          @unique(map: "Zamowienia_Numer_UN") @map("Numer_Zamowienia")
-  dataZlozenia       DateTime        @default(now()) @map("Data_Zlozenia")
-  dataWyslania       DateTime?       @map("Data_Wyslania")
-  lacznaWartosc      Decimal         @map("Laczna_Wartosc")
-  kosztDostawy       Decimal         @map("Koszt_Dostawy")
-  uwagiKlienta       String?         @map("Uwagi_Klienta")
-  uzytkownikId       Int             @map("ID_Uzytkownika")
-  adresDostawyId     Int             @map("ID_Adresu_Dostawy")
-  metodaDostawyId    Int             @map("ID_Metody_Dostawy")
-  statusZamowieniaId Int             @map("ID_Statusu_Zamowienia")
-  uzytkownik         Uzytkownik      @relation(fields: [uzytkownikId], references: [id], onDelete: Restrict) // Usunięto map
-  adresDostawy       Adres           @relation(fields: [adresDostawyId], references: [id], onDelete: Restrict) // Usunięto map
-  metodaDostawy      MetodaDostawy   @relation(fields: [metodaDostawyId], references: [id], onDelete: Restrict) // Usunięto map
-  statusZamowienia   StatusZamowienia @relation(fields: [statusZamowieniaId], references: [id], onDelete: Restrict) // Usunięto map
-  pozycje            PozycjaZamowienia[]
-  platnosci          Platnosc[]
+model Order {
+  id                Int            @id @default(autoincrement()) @map("order_id")
+  orderNumber       String         @unique @map("order_number")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  shippedDate       DateTime?      @map("shipped_date")
+  totalValue        Decimal        @map("total_value")
+  deliveryCost      Decimal        @map("delivery_cost")
+  customerNotes     String?        @map("customer_notes")
+  userId            Int            @map("user_id")
+  deliveryAddressId Int            @map("delivery_address_id")
+  deliveryMethodId  Int            @map("delivery_method_id")
+  orderStatusId     Int            @map("order_status_id")
+  user              User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  deliveryAddress   Address        @relation("DeliveryAddress", fields: [deliveryAddressId], references: [id], onDelete: Restrict)
+  deliveryMethod    DeliveryMethod @relation(fields: [deliveryMethodId], references: [id], onDelete: Restrict)
+  orderStatus       OrderStatus    @relation(fields: [orderStatusId], references: [id], onDelete: Restrict)
+  orderItems        OrderItem[]
+  payments          Payment[]
 
-  @@map("Zamowienia")
+  @@map("orders")
 }
 
-model ZdjecieKsiazki {
-  id        Int     @id @default(autoincrement()) @map("ID_Zdjecia")
-  url       String
-  opisAlt   String? @map("Opis_Alt")
-  czyGlowne Boolean @default(false) @map("Czy_Glowne")
-  ksiazkaId Int     @map("ID_Ksiazki")
-  ksiazka   Ksiazka @relation(fields: [ksiazkaId], references: [id], onDelete: Cascade) // Usunięto map
+model BookImage {
+  id             Int     @id @default(autoincrement()) @map("book_image_id")
+  url            String
+  altDescription String? @map("alt_description")
+  isMain         Boolean @default(false) @map("is_main")
+  bookId         Int     @map("book_id")
+  book           Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
-  @@map("ZdjeciaKsiazek")
+  @@map("book_images")
 }
 
-model ZgloszenieKsiazki {
-  id                       Int       @id @default(autoincrement()) @map("ID_Zgloszenia")
-  autorTekst               String    @map("Autor_Tekst")
-  tytulTekst               String    @map("Tytul_Tekst")
-  stanOpis                 String    @map("Stan_Opis")
-  opisDodatkowy            String?   @map("Opis_Dodatkowy")
-  dataZgloszenia           DateTime  @default(now()) @map("Data_Zgloszenia")
-  statusZgloszenia         StatusZgloszeniaEnum @default(Nowe) @map("Status_Zgloszenia")
-  decyzjaAdminaOpis        String?   @map("Decyzja_Admina_Opis")
-  dataDecyzji              DateTime? @map("Data_Decyzji")
-  uzytkownikZglaszajacyId  Int       @map("ID_Uzytkownika_Zglaszajacego")
-  adminOceniajacyId        Int?      @map("ID_Admina_Oceniajacego")
-  ksiazkaPoDodaniuId       Int?      @unique(map: "ZgloszKs_Ksiazka_UN") @map("ID_Ksiazki_Po_Dodaniu")
-  uzytkownikZglaszajacy    Uzytkownik @relation("ZgloszeniaZglaszajacego", fields: [uzytkownikZglaszajacyId], references: [id], onDelete: Cascade) // Usunięto map
-  adminOceniajacy          Uzytkownik? @relation("ZgloszeniaOcenione", fields: [adminOceniajacyId], references: [id], onDelete: SetNull) // Usunięto map
-  ksiazkaPoDodaniu         Ksiazka?   @relation("KsiazkaZeZgloszenia", fields: [ksiazkaPoDodaniuId], references: [id], onDelete: SetNull) // Usunięto map
+model BookSubmission {
+  id                   Int                  @id @default(autoincrement()) @map("submission_id")
+  authorText           String               @map("author_text")
+  titleText            String               @map("title_text")
+  conditionDescription String               @map("condition_description")
+  additionalInfo       String?              @map("additional_info")
+  createdAt            DateTime             @default(now()) @map("created_at")
+  submissionStatus     SubmissionStatusEnum @default(New) @map("submission_status")
+  adminDecisionNotes   String?              @map("admin_decision_notes")
+  decisionDate         DateTime?            @map("decision_date")
+  submittedById        Int                  @map("submitted_by_id")
+  reviewedById         Int?                 @map("reviewed_by_id")
+  createdBookId        Int?                 @unique @map("created_book_id")
+  submittedBy          User                 @relation("UserSubmissions", fields: [submittedById], references: [id], onDelete: Cascade)
+  reviewedBy           User?                @relation("AdminReviewedSubmissions", fields: [reviewedById], references: [id], onDelete: SetNull)
+  createdBook          Book?                @relation("BookFromSubmission", fields: [createdBookId], references: [id], onDelete: SetNull)
 
-  @@map("ZgloszeniaKsiazek")
+  @@map("book_submissions")
 }
 
-enum StatusZgloszeniaEnum {
-  Nowe
-  W_ocenie @map("W ocenie")
-  Zaakceptowane
-  Odrzucone
-  @@map("status_zgloszenia_enum")
+enum SubmissionStatusEnum {
+  New
+  UnderReview @map("Under Review")
+  Accepted
+  Rejected
+  @@map("submission_status_enum")
 }
