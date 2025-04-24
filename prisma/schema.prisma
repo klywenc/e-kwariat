@@ -1,3 +1,4 @@
+// highlight-start
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,7 +18,7 @@ model Adres {
   kraj            String    @default("Polska")
   czyDomyslny     Boolean   @default(false) @map("Czy_Domyslny")
   uzytkownikId    Int       @map("ID_Uzytkownika")
-  uzytkownik      Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) 
+  uzytkownik      user      @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) 
   zamowienia      Zamowienie[]
 
   @@map("Adresy")
@@ -127,7 +128,7 @@ model Rezerwacja {
   dataAnulowania    DateTime? @map("Data_Anulowania")
   uzytkownikId      Int       @map("ID_Uzytkownika")
   ksiazkaId         Int       @map("ID_Ksiazki")
-  uzytkownik        Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) 
+  uzytkownik        user      @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) 
   ksiazka           Ksiazka    @relation(fields: [ksiazkaId], references: [id], onDelete: Cascade) 
 
   @@map("Rezerwacje")
@@ -161,9 +162,9 @@ model user {
   id                Int       @id @default(autoincrement()) @map("ID_Uzytkownika")
   email             String    @unique(map: "Uzytkownicy_Email_UN")
   nazwisko          String?
-  name              String?
-  password          String?
-  createdAt         DateTime   @default(now()) @map("Data_Rejestracji")
+  name              String?   // Rozważ czy potrzebne obok nazwiska (i ew. imienia)
+  password          String?   // Przechowuje jawne hasło - BARDZO NIEBEZPIECZNE!
+  createdAt         DateTime   @default(now()) @map("Data_Rejestracji") // Pełni rolę daty rejestracji
   updatedAt         DateTime   @updatedAt 
   czyAktywny        Boolean   @default(true) @map("Czy_Aktywny")
   tokenResetHasla   String?   @map("Token_Reset_Hasla")
@@ -176,6 +177,7 @@ model user {
   ocenioneZgloszenia ZgloszenieKsiazki[] @relation("ZgloszeniaOcenione")
   @@map("Uzytkownicy")
 }
+
 enum Role {
   USER
   ADMIN
@@ -194,7 +196,7 @@ model Zamowienie {
   adresDostawyId     Int             @map("ID_Adresu_Dostawy")
   metodaDostawyId    Int             @map("ID_Metody_Dostawy")
   statusZamowieniaId Int             @map("ID_Statusu_Zamowienia")
-  uzytkownik         Uzytkownik      @relation(fields: [uzytkownikId], references: [id], onDelete: Restrict) 
+  uzytkownik         user            @relation(fields: [uzytkownikId], references: [id], onDelete: Restrict) 
   adresDostawy       Adres           @relation(fields: [adresDostawyId], references: [id], onDelete: Restrict) 
   metodaDostawy      MetodaDostawy   @relation(fields: [metodaDostawyId], references: [id], onDelete: Restrict) 
   statusZamowienia   StatusZamowienia @relation(fields: [statusZamowieniaId], references: [id], onDelete: Restrict) 
@@ -228,8 +230,8 @@ model ZgloszenieKsiazki {
   uzytkownikZglaszajacyId  Int       @map("ID_Uzytkownika_Zglaszajacego")
   adminOceniajacyId        Int?      @map("ID_Admina_Oceniajacego")
   ksiazkaPoDodaniuId       Int?      @unique(map: "ZgloszKs_Ksiazka_UN") @map("ID_Ksiazki_Po_Dodaniu")
-  uzytkownikZglaszajacy    Uzytkownik @relation("ZgloszeniaZglaszajacego", fields: [uzytkownikZglaszajacyId], references: [id], onDelete: Cascade) 
-  adminOceniajacy          Uzytkownik? @relation("ZgloszeniaOcenione", fields: [adminOceniajacyId], references: [id], onDelete: SetNull) 
+  uzytkownikZglaszajacy    user      @relation("ZgloszeniaZglaszajacego", fields: [uzytkownikZglaszajacyId], references: [id], onDelete: Cascade) 
+  adminOceniajacy          user?     @relation("ZgloszeniaOcenione", fields: [adminOceniajacyId], references: [id], onDelete: SetNull) 
   ksiazkaPoDodaniu         Ksiazka?   @relation("KsiazkaZeZgloszenia", fields: [ksiazkaPoDodaniuId], references: [id], onDelete: SetNull) 
 
   @@map("ZgloszeniaKsiazek")

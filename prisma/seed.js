@@ -1,20 +1,8 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, Role } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
   console.log(`Start seeding ...`);
-
-  const rolaUser = await prisma.rola.upsert({
-    where: { nazwa: 'Uzytkownik' },
-    update: {},
-    create: { nazwa: 'Uzytkownik' },
-  });
-
-  const rolaAdmin = await prisma.rola.upsert({
-    where: { nazwa: 'Admin' },
-    update: {},
-    create: { nazwa: 'Admin' },
-  });
 
   const statusDostepna = await prisma.statusKsiazki.upsert({
     where: { nazwa: 'Dostępna' },
@@ -34,12 +22,13 @@ async function main() {
     create: { nazwa: 'Nowe', opis: 'Zamówienie zostało złożone.' },
   });
 
-  console.log('Created basic roles and statuses.');
+  console.log('Created basic statuses.');
 
   const autor1 = await prisma.autor.upsert({
     where: { id: 1 },
     update: {},
     create: {
+      id: 1,
       imie: 'Andrzej',
       nazwisko: 'Sapkowski',
       opis: 'Polski pisarz fantasy.',
@@ -50,6 +39,7 @@ async function main() {
      where: { id: 2 },
      update: {},
      create: {
+      id: 2,
       imie: 'Stanisław',
       nazwisko: 'Lem',
       opis: 'Polski pisarz science fiction, filozof.',
@@ -74,6 +64,7 @@ async function main() {
     where: { id: 1 },
     update: {},
     create: {
+      id: 1,
       tytul: 'Wiedźmin: Ostatnie życzenie',
       rokWydania: 1993,
       cena: 35.99,
@@ -94,6 +85,7 @@ async function main() {
     where: { id: 2 },
     update: {},
     create: {
+      id: 2,
       tytul: 'Solaris',
       rokWydania: 1961,
       cena: 29.50,
@@ -112,17 +104,15 @@ async function main() {
 
   console.log(`Created books: "${ksiazka1.tytul}", "${ksiazka2.tytul}"`);
 
-  const user1 = await prisma.uzytkownik.upsert({
+  const user1 = await prisma.user.upsert({
     where: { email: 'test@example.com' },
     update: {},
     create: {
       email: 'test@example.com',
-      hasloHash: 'plain_password_for_seed_only',
-      imie: 'Jan',
+      password: 'password123_seed',
       nazwisko: 'Kowalski',
-      rola: {
-        connect: { id: rolaUser.id },
-      },
+      name: 'Jan',
+      role: Role.USER,
       czyAktywny: true,
     },
   });
@@ -133,6 +123,7 @@ async function main() {
 
 main()
   .catch((e) => {
+    console.error("Seeding failed:");
     console.error(e);
     process.exit(1);
   })
