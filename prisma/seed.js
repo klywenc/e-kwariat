@@ -61,10 +61,10 @@ async function main() {
   console.log(`Created genres: ${gatunekFantasy.nazwa}, ${gatunekSciFi.nazwa}`);
 
   const ksiazka1 = await prisma.ksiazka.upsert({
-    where: { id: 1 },
+    where: { id: 1 }, 
     update: {},
     create: {
-      id: 1,
+
       tytul: 'Wiedźmin: Ostatnie życzenie',
       rokWydania: 1993,
       cena: 35.99,
@@ -82,10 +82,9 @@ async function main() {
   });
 
   const ksiazka2 = await prisma.ksiazka.upsert({
-    where: { id: 2 },
+    where: { id: 2 }, // OK - do znalezienia rekordu
     update: {},
     create: {
-      id: 2,
       tytul: 'Solaris',
       rokWydania: 1961,
       cena: 29.50,
