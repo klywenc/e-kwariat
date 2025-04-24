@@ -11,8 +11,8 @@ const prisma = new PrismaClient();
 // ale pamiętajmy, że obiekty 'book' będą miały strukturę zgodną z zapytaniem Prisma
 
 export default async function HomePage() {
-  let books = []; // Usunięto typowanie : BookWithDetails[]
-  let error = null; // Usunięto typowanie : string | null
+  let books = [];
+  let error = null;
 
   try {
     books = await prisma.ksiazka.findMany({
@@ -20,16 +20,14 @@ export default async function HomePage() {
         autorzy: true,
         statusKsiazki: true,
         zdjecia: {
-          where: { czyGlowne: true }, // Pobieramy tylko główne zdjęcie
-          take: 1, // Wystarczy nam jedno
+          where: { czyGlowne: true },
+          take: 1,
         },
-        gatunki: true, // Pobieramy też gatunki
+        gatunki: true,
       },
       orderBy: {
-        dataDodania: 'desc', // Sortujmy po dacie dodania (najnowsze pierwsze) lub tytule 'asc'
+        dataDodania: 'desc',
       },
-      // Możesz dodać `take: 20,` aby ograniczyć liczbę książek na stronie głównej
-      // i zaimplementować paginację później
     });
   } catch (e) {
     console.error('Failed to fetch books:', e);
@@ -38,7 +36,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <Header /> {/* Komponent Nagłówka */}
+      <Header />
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
@@ -50,10 +48,8 @@ export default async function HomePage() {
           </p>
         </div>
 
-        {/* Pasek Wyszukiwania i Filtrowania */}
         <SearchFilterBar />
 
-        {/* Sekcja z książkami */}
         <section className="mt-8">
           <h2 className="text-2xl font-semibold text-gray-700 mb-6">
             Nasze Książki
@@ -65,8 +61,7 @@ export default async function HomePage() {
             </p>
           )}
 
-          {!error && books.length > 0 && <BookGrid books={books} />}{' '}
-          {/* Komponent siatki książek */}
+          {!error && books.length > 0 && <BookGrid books={books} />}
 
           {!error && books.length === 0 && (
             <p className="text-center text-gray-500 mt-10">
@@ -74,12 +69,9 @@ export default async function HomePage() {
             </p>
           )}
         </section>
-
-        {/* Możesz dodać inne sekcje, np. "Nowości", "Promocje", "Polecane Gatunki" */}
-
       </main>
 
-      <Footer /> {/* Komponent Stopki */}
+      <Footer />
     </div>
   );
 }
