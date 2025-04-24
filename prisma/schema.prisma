@@ -17,7 +17,7 @@ model Adres {
   kraj            String    @default("Polska")
   czyDomyslny     Boolean   @default(false) @map("Czy_Domyslny")
   uzytkownikId    Int       @map("ID_Uzytkownika")
-  uzytkownik      Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) // Usunięto map
+  uzytkownik      Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) 
   zamowienia      Zamowienie[]
 
   @@map("Adresy")
@@ -51,7 +51,7 @@ model Ksiazka {
   dataDodania        DateTime       @default(now()) @map("Data_Dodania")
   dataModyfikacji    DateTime?      @updatedAt @map("Data_Modyfikacji")
   statusKsiazkiId    Int            @map("ID_Statusu_Ksiazki")
-  statusKsiazki      StatusKsiazki  @relation(fields: [statusKsiazkiId], references: [id], onDelete: Restrict) // Usunięto map
+  statusKsiazki      StatusKsiazki  @relation(fields: [statusKsiazkiId], references: [id], onDelete: Restrict) 
   autorzy            Autor[]        @relation("KsiazkaAutor")
   gatunki            Gatunek[]      @relation("KsiazkaGatunek")
   zdjecia            ZdjecieKsiazki[]
@@ -91,8 +91,8 @@ model Platnosc {
   idTransakcjiZewn  String?        @map("Id_Transakcji_Zewn")
   zamowienieId      Int            @map("ID_Zamowienia")
   metodaPlatnosciId Int            @map("ID_Metody_Platnosci")
-  zamowienie        Zamowienie     @relation(fields: [zamowienieId], references: [id], onDelete: Cascade) // Usunięto map
-  metodaPlatnosci   MetodaPlatnosci @relation(fields: [metodaPlatnosciId], references: [id], onDelete: Restrict) // Usunięto map
+  zamowienie        Zamowienie     @relation(fields: [zamowienieId], references: [id], onDelete: Cascade) 
+  metodaPlatnosci   MetodaPlatnosci @relation(fields: [metodaPlatnosciId], references: [id], onDelete: Restrict) 
 
   @@map("Platnosci")
 }
@@ -102,7 +102,7 @@ enum StatusPlatnosciEnum {
   Udana
   Nieudana
   Anulowana
-  Zwrócona
+  Zwrocona
   @@map("status_platnosci_enum")
 }
 
@@ -112,8 +112,8 @@ model PozycjaZamowienia {
   cenaJednostkowa   Decimal   @map("Cena_Jednostkowa")
   zamowienieId      Int       @map("ID_Zamowienia")
   ksiazkaId         Int       @map("ID_Ksiazki")
-  zamowienie        Zamowienie @relation(fields: [zamowienieId], references: [id], onDelete: Cascade) // Usunięto map
-  ksiazka           Ksiazka    @relation(fields: [ksiazkaId], references: [id], onDelete: Restrict) // Usunięto map
+  zamowienie        Zamowienie @relation(fields: [zamowienieId], references: [id], onDelete: Cascade) 
+  ksiazka           Ksiazka    @relation(fields: [ksiazkaId], references: [id], onDelete: Restrict) 
 
   @@unique([zamowienieId, ksiazkaId], map: "PozZam_Uniq_Zam_Ksiazka")
   @@map("PozycjeZamowien")
@@ -127,8 +127,8 @@ model Rezerwacja {
   dataAnulowania    DateTime? @map("Data_Anulowania")
   uzytkownikId      Int       @map("ID_Uzytkownika")
   ksiazkaId         Int       @map("ID_Ksiazki")
-  uzytkownik        Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) // Usunięto map
-  ksiazka           Ksiazka    @relation(fields: [ksiazkaId], references: [id], onDelete: Cascade) // Usunięto map
+  uzytkownik        Uzytkownik @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade) 
+  ksiazka           Ksiazka    @relation(fields: [ksiazkaId], references: [id], onDelete: Cascade) 
 
   @@map("Rezerwacje")
 }
@@ -138,14 +138,6 @@ enum StatusRezerwacjiEnum {
   Anulowana
   Zakonczona
   @@map("status_rezerwacji_enum")
-}
-
-model Rola {
-  id          Int      @id @default(autoincrement()) @map("ID_Roli")
-  nazwa       String   @unique(map: "Role_Nazwa_UN")
-  uzytkownicy Uzytkownik[]
-
-  @@map("Role")
 }
 
 model StatusKsiazki {
@@ -168,24 +160,20 @@ model StatusZamowienia {
 model user {
   id                Int       @id @default(autoincrement()) @map("ID_Uzytkownika")
   email             String    @unique(map: "Uzytkownicy_Email_UN")
-  hasloHash         String    @map("Haslo_Hash")
-  imie              String?
   nazwisko          String?
   name              String?
   password          String?
-  dataRejestracji   DateTime  @default(now()) @map("Data_Rejestracji")
+  createdAt         DateTime   @default(now()) @map("Data_Rejestracji")
+  updatedAt         DateTime   @updatedAt 
   czyAktywny        Boolean   @default(true) @map("Czy_Aktywny")
   tokenResetHasla   String?   @map("Token_Reset_Hasla")
   dataWaznTokenu    DateTime? @map("Data_Wazn_Tokenu")
-  rolaId            Int       @map("ID_Roli")
-  rola              Rola      @relation(fields: [rolaId], references: [id], onDelete: Restrict) // Usunięto map
   adresy            Adres[]
   role              Role @default(USER)
   zamowienia        Zamowienie[]
   rezerwacje        Rezerwacja[]
   zgloszenia        ZgloszenieKsiazki[] @relation("ZgloszeniaZglaszajacego")
   ocenioneZgloszenia ZgloszenieKsiazki[] @relation("ZgloszeniaOcenione")
-
   @@map("Uzytkownicy")
 }
 enum Role {
@@ -206,10 +194,10 @@ model Zamowienie {
   adresDostawyId     Int             @map("ID_Adresu_Dostawy")
   metodaDostawyId    Int             @map("ID_Metody_Dostawy")
   statusZamowieniaId Int             @map("ID_Statusu_Zamowienia")
-  uzytkownik         Uzytkownik      @relation(fields: [uzytkownikId], references: [id], onDelete: Restrict) // Usunięto map
-  adresDostawy       Adres           @relation(fields: [adresDostawyId], references: [id], onDelete: Restrict) // Usunięto map
-  metodaDostawy      MetodaDostawy   @relation(fields: [metodaDostawyId], references: [id], onDelete: Restrict) // Usunięto map
-  statusZamowienia   StatusZamowienia @relation(fields: [statusZamowieniaId], references: [id], onDelete: Restrict) // Usunięto map
+  uzytkownik         Uzytkownik      @relation(fields: [uzytkownikId], references: [id], onDelete: Restrict) 
+  adresDostawy       Adres           @relation(fields: [adresDostawyId], references: [id], onDelete: Restrict) 
+  metodaDostawy      MetodaDostawy   @relation(fields: [metodaDostawyId], references: [id], onDelete: Restrict) 
+  statusZamowienia   StatusZamowienia @relation(fields: [statusZamowieniaId], references: [id], onDelete: Restrict) 
   pozycje            PozycjaZamowienia[]
   platnosci          Platnosc[]
 
@@ -222,7 +210,7 @@ model ZdjecieKsiazki {
   opisAlt   String? @map("Opis_Alt")
   czyGlowne Boolean @default(false) @map("Czy_Glowne")
   ksiazkaId Int     @map("ID_Ksiazki")
-  ksiazka   Ksiazka @relation(fields: [ksiazkaId], references: [id], onDelete: Cascade) // Usunięto map
+  ksiazka   Ksiazka @relation(fields: [ksiazkaId], references: [id], onDelete: Cascade) 
 
   @@map("ZdjeciaKsiazek")
 }
@@ -240,9 +228,9 @@ model ZgloszenieKsiazki {
   uzytkownikZglaszajacyId  Int       @map("ID_Uzytkownika_Zglaszajacego")
   adminOceniajacyId        Int?      @map("ID_Admina_Oceniajacego")
   ksiazkaPoDodaniuId       Int?      @unique(map: "ZgloszKs_Ksiazka_UN") @map("ID_Ksiazki_Po_Dodaniu")
-  uzytkownikZglaszajacy    Uzytkownik @relation("ZgloszeniaZglaszajacego", fields: [uzytkownikZglaszajacyId], references: [id], onDelete: Cascade) // Usunięto map
-  adminOceniajacy          Uzytkownik? @relation("ZgloszeniaOcenione", fields: [adminOceniajacyId], references: [id], onDelete: SetNull) // Usunięto map
-  ksiazkaPoDodaniu         Ksiazka?   @relation("KsiazkaZeZgloszenia", fields: [ksiazkaPoDodaniuId], references: [id], onDelete: SetNull) // Usunięto map
+  uzytkownikZglaszajacy    Uzytkownik @relation("ZgloszeniaZglaszajacego", fields: [uzytkownikZglaszajacyId], references: [id], onDelete: Cascade) 
+  adminOceniajacy          Uzytkownik? @relation("ZgloszeniaOcenione", fields: [adminOceniajacyId], references: [id], onDelete: SetNull) 
+  ksiazkaPoDodaniu         Ksiazka?   @relation("KsiazkaZeZgloszenia", fields: [ksiazkaPoDodaniuId], references: [id], onDelete: SetNull) 
 
   @@map("ZgloszeniaKsiazek")
 }
