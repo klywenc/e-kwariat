@@ -36,7 +36,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <Header />
+      {/*/!*<Header />*!/ old */}
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
@@ -70,8 +70,6 @@ export default async function HomePage() {
           )}
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }
