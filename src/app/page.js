@@ -15,7 +15,7 @@ export default async function HomePage() {
   let error = null;
 
   try {
-    books = await prisma.ksiazka.findMany({
+    const rawBooks = await prisma.ksiazka.findMany({
       include: {
         autorzy: true,
         statusKsiazki: true,
@@ -29,6 +29,15 @@ export default async function HomePage() {
         dataDodania: 'desc',
       },
     });
+
+    // Convert Decimal values to numbers
+    books = rawBooks.map(book => ({
+      ...book,
+      cena: Number(book.cena),
+      dataDodania: book.dataDodania.toISOString(),
+      dataModyfikacji: book.dataModyfikacji?.toISOString() || null
+    }));
+
   } catch (e) {
     console.error('Failed to fetch books:', e);
     error = 'Nie udało się załadować książek. Spróbuj ponownie później.';

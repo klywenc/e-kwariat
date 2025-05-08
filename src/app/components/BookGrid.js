@@ -1,3 +1,5 @@
+'use client';
+
 import BookCard from './BookCard';
 // Usunięto import typu BookWithDetails
 
