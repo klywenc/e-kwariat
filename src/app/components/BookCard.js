@@ -33,23 +33,23 @@ export default function BookCard({ book }) {
 
   return (
     // Link teraz bezpośrednio owija zawartość, legacyBehavior nie jest potrzebne dla Next.js 13+ App Router
-    // jeśli Link jest jedynym dzieckiem, które akceptuje ref (np. <a> lub komponent z forwardRef)
+    // jeśli Link jest jedynym dzieckiem, które akceptuje ref (np. <a> lib komponent z forwardRef)
     // Jednak dla zachowania struktury z <a> wewnątrz, legacyBehavior jest OK,
     // ale można też ostylować sam Link jako block.
     // Dla prostoty zostawiam legacyBehavior, jeśli tak miałeś.
-    <Link href={`/ksiazka/${book.id}`} legacyBehavior>
+    <Link href={`/product/${book.id}`} legacyBehavior>
       <a className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 group h-full flex flex-col"> {/* Dodano h-full i flex flex-col */}
         <div className="relative w-full h-64 bg-gray-200">
           <Image
             src={mainImage}
             alt={imageAlt}
             fill // Zastępuje layout="fill" i objectFit
-            style={{ objectFit: 'cover' }} // 'cover' lub 'contain'
+            style={{ objectFit: 'cover' }} // 'cover' lib 'contain'
             className="transition-transform duration-300 group-hover:scale-105"
             priority={false} // Ustaw na true dla pierwszych kilku obrazków (LCP)
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" // Dostosuj wg potrzeb
             // onError nie jest już tak proste z `fill`.
-            // Zamiast tego, upewnij się, że `mainImage` zawsze ma poprawną ścieżkę (do obrazka lub placeholdera).
+            // Zamiast tego, upewnij się, że `mainImage` zawsze ma poprawną ścieżkę (do obrazka lib placeholdera).
           />
           {book.statusKsiazki?.nazwa && book.statusKsiazki.nazwa !== 'Dostępna' && (
             <span className="absolute top-2 right-2 bg-red-600 text-white text-xs font-semibold px-2.5 py-1.5 rounded-full shadow">

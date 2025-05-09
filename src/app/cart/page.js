@@ -59,10 +59,12 @@ export default function CartPage() {
 
   if (status === 'unauthenticated') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-4">Koszyk</h1>
-        <p className="mb-4">Musisz być zalogowany, aby zobaczyć swój koszyk.</p>
-        <Link href="/login" className="text-blue-600 hover:text-blue-800">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">Koszyk</h1> {/* <--- DODANO text-gray-800 */}
+        <p className="mb-4 text-gray-600">Musisz być zalogowany, aby zobaczyć swój
+          koszyk.</p> {/* <--- DODANO text-gray-600 */}
+        <Link href="/login"
+              className="text-indigo-600 hover:text-indigo-800 font-semibold"> {/* <--- ZMIENIONO KOLOR LINKU na bardziej widoczny */}
           Przejdź do logowania
         </Link>
       </div>
@@ -71,10 +73,10 @@ export default function CartPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-4">Koszyk</h1>
-        <p className="text-red-600">Wystąpił błąd: {error}</p>
-      </div>
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+          <h1 className="text-2xl font-bold mb-4">Koszyk</h1>
+          <p className="text-red-600">Wystąpił błąd: {error}</p>
+        </div>
     );
   }
 
@@ -83,10 +85,10 @@ export default function CartPage() {
   }, 0) || 0;
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <h1 className="text-3xl font-bold mb-8">Twój koszyk</h1>
-      
-      {!cart?.pozycje?.length ? (
+      <div className="min-h-screen p-4 md:p-8">
+        <h1 className="text-3xl font-bold mb-8">Twój koszyk</h1>
+
+        {!cart?.pozycje?.length ? (
         <div className="text-center py-8">
           <p className="text-xl mb-4">Twój koszyk jest pusty</p>
           <Link href="/" className="text-blue-600 hover:text-blue-800">
