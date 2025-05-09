@@ -60,11 +60,11 @@ export default function CartPage() {
   if (status === 'unauthenticated') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">Koszyk</h1> {/* <--- DODANO text-gray-800 */}
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">Koszyk</h1>
         <p className="mb-4 text-gray-600">Musisz być zalogowany, aby zobaczyć swój
-          koszyk.</p> {/* <--- DODANO text-gray-600 */}
+          koszyk.</p>
         <Link href="/login"
-              className="text-indigo-600 hover:text-indigo-800 font-semibold"> {/* <--- ZMIENIONO KOLOR LINKU na bardziej widoczny */}
+              className="text-indigo-600 hover:text-indigo-800 font-semibold">
           Przejdź do logowania
         </Link>
       </div>
@@ -102,10 +102,11 @@ export default function CartPage() {
               <div key={item.id} className="flex flex-col md:flex-row gap-4 p-4 border-b">
                 <div className="relative w-full md:w-32 h-48">
                   <Image
-                    src={item.ksiazka.zdjecia[0]?.url || '/placeholder-book.jpg'}
+                    src={item.ksiazka.zdjecia[0]?.url || '/images/cover.png'}
                     alt={item.ksiazka.zdjecia[0]?.opisAlt || item.ksiazka.tytul}
                     fill
-                    className="object-cover rounded"
+                    className="object-cover rounded-xl border border-gray-300"
+                    className="object-cover rounded-xl border border-gray-300"
                   />
                 </div>
                 <div className="flex-1">
@@ -119,7 +120,7 @@ export default function CartPage() {
                   </p>
                   <button
                     onClick={() => removeFromCart(item.ksiazka.id)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 cursor-pointer"
                   >
                     Usuń z koszyka
                   </button>
@@ -142,7 +143,7 @@ export default function CartPage() {
                 </p>
               </div>
               <button
-                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
                 onClick={() => {/* TODO: Implement checkout */}}
               >
                 Przejdź do kasy

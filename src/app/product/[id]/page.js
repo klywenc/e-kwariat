@@ -2,7 +2,6 @@
 import prisma from '@/lib/prisma';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-// import Link from 'next/link'; // Odkomentuj, jeśli będziesz używać
 
 // Funkcja do pobierania danych książki
 async function getBookDetails(bookId) {
@@ -51,7 +50,7 @@ export default async function BookDetailsPage({ params }) {
     const thumbnails = book.zdjecia?.filter(z => z.url !== mainImage) || [];
 
     return (
-        <main className="flex-grow flex items-center justify-center py-8 bg-gray-50">
+        <main className="flex-grow flex items-center justify-center py-16 bg-gray-50">
             {/* ZMIANA: Dodano klasę mb-24 (margin-bottom: 6rem) aby stworzyć większy odstęp na dole */}
             <div className="container mx-auto px-4 py-8 bg-gray-100 mb-24">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

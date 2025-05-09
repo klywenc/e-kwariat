@@ -93,10 +93,11 @@ export default function Navbar() {
                         )}
                         {session?.user ? (
                             <div className="flex items-center space-x-3">
+                                <Link href="/cart" className="text-gray-600 hover:text-indigo-600">Koszyk</Link>
                                 <span className="text-gray-700 text-sm">
                                     Witaj, <Link href="/profil" className="font-medium hover:text-indigo-600">{session.user.name || session.user.email}</Link>
                                 </span>
-                                <button onClick={() => signOut()} className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 text-sm">Wyloguj</button>
+                                <button onClick={() => signOut()} className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 text-sm cursor-pointer">Wyloguj</button>
                             </div>
                         ) : (
                             <div className="flex space-x-2">
@@ -126,7 +127,7 @@ export default function Navbar() {
                                 <div className="text-gray-700 py-2 text-sm">
                                     Witaj, <Link href="/profil" className="font-medium hover:text-indigo-600" onClick={closeMenu}>{session.user.name || session.user.email}</Link>
                                 </div>
-                                <button onClick={() => { signOut(); closeMenu(); }} className="block bg-red-500 text-white w-full max-w-xs text-center px-4 py-2 rounded-md hover:bg-red-600 text-sm">Wyloguj się</button>
+                                <button onClick={() => { signOut(); closeMenu(); }} className="block bg-red-500 text-white w-full max-w-xs text-center px-4 py-2 rounded-md hover:bg-red-600 text-sm cursor-pointer">Wyloguj się</button>
                             </>
                         ) : (
                             <div className="flex flex-col space-y-3 w-full max-w-xs items-center pt-2">

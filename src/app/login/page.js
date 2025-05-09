@@ -1,9 +1,12 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react"; // Import useState do obsługi błędów
+import { useState } from "react";
+import {router} from "next/client";
+import {useRouter} from "next/navigation"; // Import useState do obsługi błędów
 
 export default function LoginPage() {
+    const router = useRouter();
     const [error, setError] = useState(null); // Stan do przechowywania błędów logowania
 
     const handleSubmit = async (e) => {
@@ -18,7 +21,9 @@ export default function LoginPage() {
             password,
         });
 
-        if (result?.error) {
+        if (result?.ok) {
+            await router.push("/");
+        } else if (result?.error) {
             // Ustaw komunikat błędu na podstawie odpowiedzi z NextAuth
             if (result.error === "CredentialsSignin") {
                 setError("Nieprawidłowy email lub hasło.");
