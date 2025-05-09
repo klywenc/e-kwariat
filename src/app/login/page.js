@@ -8,11 +8,22 @@ export default function LoginPage() {
             <div className="bg-white shadow-md rounded-lg p-8 max-w-md w-full">
                 <h2 className="text-2xl font-bold text-center mb-6">Logowanie</h2>
                 <form
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                         e.preventDefault();
                         const email = e.target.email.value;
                         const password = e.target.password.value;
-                        signIn("credentials", { email, password });
+
+                        const res = await signIn("credentials", {
+                            redirect: false,
+                            email,
+                            password,
+                        });
+
+                        if (res?.ok) {
+                            router.push("/");
+                        } else {
+                            alert("Nieprawidłowy email lub hasło.");
+                        }
                     }}
                     className="space-y-4"
                 >
