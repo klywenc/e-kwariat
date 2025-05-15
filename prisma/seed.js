@@ -39,7 +39,7 @@ async function main() {
   // to `where: {id: X}` i `create: {id: X, ...}` jest OK, ale `id` w `create`
   // jest wtedy potrzebne, aby Prisma wiedziała, jakie ID nadać, jeśli rekord nie istnieje.
   // Dla spójności z poprawką dla książek, jeśli Autor.id jest autoincrement,
-  // lepiej polegać na innym unikalnym polu w `where` lub tworzyć bez `id` w `create`.
+  // lepiej polegać na innym unikalnym polu w `where` lib tworzyć bez `id` w `create`.
   // Poniżej zostawiam podejście z wymuszaniem ID dla autorów, bo tak było wcześniej.
   const autorSapkowski = await prisma.autor.upsert({
     where: { id: 1 },

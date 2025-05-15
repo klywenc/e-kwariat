@@ -32,7 +32,7 @@ function buildWhereClause(searchTerm) { // Usunięto parametr 'category'
     }
     // Usunięto blok 'if (category)'
 
-    if (conditions.length === 0) return {}; // Jeśli brak searchTerm, zwróć wszystkie (lub obsłuż inaczej)
+    if (conditions.length === 0) return {}; // Jeśli brak searchTerm, zwróć wszystkie (lib obsłuż inaczej)
     return { AND: conditions };
 }
 
