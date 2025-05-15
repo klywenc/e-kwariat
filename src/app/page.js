@@ -1,53 +1,86 @@
 // app/page.js
-import prisma from '@/lib/prisma'; // <--- ZMIANA: Importuj współdzieloną instancję
-import BookGrid from '@/app/components/BookGrid'; // Upewnij się, że ścieżka jest poprawna, jeśli BookGrid jest w src/app/components, to może być '@/components/BookGrid'
+import prisma from '@/lib/prisma';
+import ProductGrid from '@/app/components/ProductGrid';
+import CategorySidebar from '@/app/components/CategorySidebar'; // Importujemy nowy komponent
+import Link from 'next/link';
 
-// const prisma = new PrismaClient(); // <--- USUŃ TĘ LINIĘ
-
-// Funkcja pomocnicza do serializacji książek
-const serializeBooks = (booksToSerialize) => {
-  return booksToSerialize.map(book => ({
-    ...book,
-    cena: book.cena.toNumber(), // Konwersja Decimal na number
-    dataDodania: book.dataDodania.toISOString(), // Konwersja Date na ISO string
-    dataModyfikacji: book.dataModyfikacji ? book.dataModyfikacji.toISOString() : null,
-    // Upewnij się, że wszystkie powiązane dane, które mogą zawierać Date/Decimal,
-    // są również odpowiednio serializowane, jeśli BookGrid jest komponentem klienckim.
-    // Przykład dla zdjęć i autorów, jeśli miałyby takie pola:
-    // zdjecia: book.zdjecia.map(z => ({ ...z, /* ewentualne konwersje */ })),
-    // autorzy: book.autorzy.map(a => ({ ...a, /* ewentualne konwersje */ })),
-  }));
+// Funkcja serializacji produktów (pozostaje taka sama)
+const serializeProducts = (productsToSerialize) => {
+  return productsToSerialize.map(product => {
+    const serializedProduct = {
+      ...product,
+      cena: product.cena.toNumber(),
+      dataDodania: product.dataDodania.toISOString(),
+      dataModyfikacji: product.dataModyfikacji ? product.dataModyfikacji.toISOString() : null,
+      daneKsiazki: product.daneKsiazki ? { ...product.daneKsiazki } : null,
+      daneAudiobooka: product.daneAudiobooka ? { ...product.daneAudiobooka } : null,
+      daneKomiksu: product.daneKomiksu ? { ...product.daneKomiksu } : null,
+      daneZabawki: product.daneZabawki ? { ...product.daneZabawki } : null,
+    };
+    return serializedProduct;
+  });
 };
 
-export default async function HomePage() {
-  let booksRaw = [];
+// Funkcja do pobierania danych dla strony głównej
+async function getHomePageData(searchParams) {
+  const categorySlug = typeof searchParams.category === 'string' ? searchParams.category : null;
+
+  let productsRaw = [];
+  let productCategories = [];
   let error = null;
+  let selectedCategoryName = null;
 
   try {
-    // Teraz `prisma` odnosi się do współdzielonej instancji z @/lib/prisma
-    booksRaw = await prisma.ksiazka.findMany({
+    // Pobieramy typy produktów (kategorie)
+    productCategories = await prisma.typProduktu.findMany({
+      orderBy: { nazwa: 'asc' },
+      select: { id: true, nazwa: true, slug: true } // Dodajemy slug
+    });
+
+    // Budujemy warunek WHERE dla produktów
+    const whereCondition = {
+      statusProduktu: { nazwa: 'Dostępny' }, // Zawsze tylko dostępne
+    };
+
+    if (categorySlug) {
+      const category = productCategories.find(cat => cat.slug === categorySlug);
+      if (category) {
+        whereCondition.typProduktuId = category.id;
+        selectedCategoryName = category.nazwa;
+      } else {
+        // Jeśli slug kategorii jest nieprawidłowy, możemy np. nie filtrować lub zwrócić błąd/pustą listę
+        // Tutaj dla uproszczenia, jeśli slug jest zły, pokażemy wszystkie dostępne.
+        // Można by też rzucić notFound() z next/navigation
+        console.warn(`Category with slug "${categorySlug}" not found.`);
+      }
+    }
+
+    productsRaw = await prisma.produkt.findMany({
+      where: whereCondition,
       include: {
-        autorzy: true,
-        statusKsiazki: true,
-        zdjecia: {
-          where: { czyGlowne: true },
-          take: 1,
-        },
-        gatunki: true,
+        typProduktu: true,
+        statusProduktu: true,
+        zdjecia: { where: { czyGlowne: true }, take: 1 },
+        daneKsiazki: { include: { autorzy: true, gatunki: true } },
+        daneAudiobooka: { include: { autorzy: true, gatunki: true } },
+        daneKomiksu: { include: { scenarzysci: true, rysownicy: true, gatunki: true } },
+        daneZabawki: true,
       },
-      orderBy: {
-        dataDodania: 'desc',
-      },
+      orderBy: { dataDodania: 'desc' },
       take: 20,
     });
   } catch (e) {
-    console.error('Failed to fetch books:', e);
-    error = 'Nie udało się załadować książek. Spróbuj ponownie później.';
+    console.error('Failed to fetch homepage data:', e);
+    error = 'Nie udało się załadować danych. Spróbuj ponownie później.';
   }
 
-  // Serializacja danych jest potrzebna, jeśli BookGrid jest komponentem klienckim ('use client')
-  // ponieważ obiekty Date i Decimal nie są bezpośrednio serializowalne do JSON.
-  const books = booksRaw.length > 0 ? serializeBooks(booksRaw) : [];
+  const products = productsRaw.length > 0 ? serializeProducts(productsRaw) : [];
+  return { products, productCategories, error, currentCategorySlug: categorySlug, selectedCategoryName };
+}
+
+
+export default async function HomePage({ searchParams }) {
+  const { products, productCategories, error, currentCategorySlug, selectedCategoryName } = await getHomePageData(searchParams);
 
   return (
       <div className="flex flex-col min-h-screen bg-gray-100">
@@ -57,29 +90,50 @@ export default async function HomePage() {
               Witaj w E-Kwariat!
             </h1>
             <p className="text-lg text-gray-600">
-              Odkryj unikalne książki z drugiej ręki.
+              Odkryj unikalne skarby z drugiej ręki i nie tylko.
             </p>
           </div>
 
-          <section className="mt-8">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-6">
-              Ostatnio Dodane
-            </h2>
+          <div className="flex flex-col md:flex-row gap-8">
+            {/* Boczny panel kategorii */}
+            <div className="w-full md:w-1/4 lg:w-1/5">
+              <CategorySidebar initialCategories={productCategories} currentCategorySlug={currentCategorySlug} />
+            </div>
 
-            {error && (
-                <p className="text-center text-red-600 bg-red-100 p-4 rounded-md">
-                  {error}
-                </p>
-            )}
+            {/* Główna sekcja z produktami */}
+            <div className="w-full md:w-3/4 lg:w-4/5">
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-700 mb-6">
+                  {selectedCategoryName ? `Produkty z kategorii: ${selectedCategoryName}` : "Nasza Oferta"}
+                </h2>
 
-            {!error && books.length > 0 && <BookGrid books={books} />}
+                {error && (
+                    <p className="text-center text-red-600 bg-red-100 p-4 rounded-md">
+                      {error}
+                    </p>
+                )}
 
-            {!error && books.length === 0 && (
-                <p className="text-center text-gray-500 mt-10">
-                  Wygląda na to, że nie mamy jeszcze żadnych książek w ofercie.
-                </p>
-            )}
-          </section>
+                {!error && products.length > 0 && <ProductGrid products={products} />}
+
+                {!error && products.length === 0 && (
+                    <div className="text-center py-10 bg-white p-6 rounded-lg shadow">
+                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <h3 className="mt-2 text-xl font-medium text-gray-900">Brak produktów</h3>
+                        <p className="mt-1 text-sm text-gray-500">
+                            {currentCategorySlug ? "Nie znaleziono produktów w tej kategorii." : "Wygląda na to, że nie mamy jeszcze żadnych produktów w ofercie."}
+                        </p>
+                         {currentCategorySlug && (
+                            <div className="mt-4">
+                                <Link href="/" scroll={false} className="text-indigo-600 hover:text-indigo-500 font-semibold">
+                                    Pokaż wszystkie kategorie <span aria-hidden="true">→</span>
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                )}
+              </section>
+            </div>
+          </div>
         </main>
       </div>
   );

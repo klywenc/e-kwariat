@@ -5,24 +5,77 @@ const prisma = new PrismaClient();
 async function main() {
   console.log(`Start seeding ...`);
 
-  // --- Statusy Książek ---
-  const statusDostepna = await prisma.statusKsiazki.upsert({
-    where: { nazwa: 'Dostępna' },
+  // --- Statusy Produktu (zamiast StatusKsiazki) ---
+  const statusProdDostepny = await prisma.statusProduktu.upsert({
+    where: { nazwa: 'Dostępny' },
     update: {},
-    create: { nazwa: 'Dostępna' },
+    create: { nazwa: 'Dostępny' },
   });
 
-  const statusSprzedana = await prisma.statusKsiazki.upsert({
-    where: { nazwa: 'Sprzedana' },
+  const statusProdSprzedany = await prisma.statusProduktu.upsert({
+    where: { nazwa: 'Wyprzedany' }, // Zmieniona nazwa dla ogólności
     update: {},
-    create: { nazwa: 'Sprzedana' },
+    create: { nazwa: 'Wyprzedany' },
   });
 
-  const statusRezerwacja = await prisma.statusKsiazki.upsert({
-    where: { nazwa: 'Zarezerwowana' },
+  const statusProdRezerwacja = await prisma.statusProduktu.upsert({
+    where: { nazwa: 'Zarezerwowany' },
     update: {},
-    create: { nazwa: 'Zarezerwowana' },
+    create: { nazwa: 'Zarezerwowany' },
   });
+  console.log('Created product statuses.');
+
+  // --- Typy Produktów ---
+const typKsiazka = await prisma.typProduktu.upsert({
+  where: { nazwa: 'Książka' }, update: {},
+  create: { nazwa: 'Książka', slug: 'ksiazki', opis: 'Tradycyjne książki drukowane.' },
+});
+const typAudiobook = await prisma.typProduktu.upsert({
+  where: { nazwa: 'Audiobook MP3' }, update: {},
+  create: { nazwa: 'Audiobook MP3', slug: 'audiobooki-mp3', opis: 'Książki do słuchania w formacie MP3.' },
+});
+const typEbook = await prisma.typProduktu.upsert({
+  where: { nazwa: 'Ebook' }, update: {},
+  create: { nazwa: 'Ebook', slug: 'ebooki', opis: 'Książki w formacie elektronicznym.' },
+});
+const typKomiks = await prisma.typProduktu.upsert({
+  where: { nazwa: 'Komiks' }, update: {},
+  create: { nazwa: 'Komiks', slug: 'komiksy', opis: 'Opowieści obrazkowe.' },
+});
+const typCzasopismo = await prisma.typProduktu.upsert({ // <--- UPEWNIJ SIĘ, ŻE MASZ TEN WPIS
+  where: { nazwa: 'Czasopismo' }, update: {},
+  create: { nazwa: 'Czasopismo', slug: 'czasopisma', opis: 'Magazyny i periodyki.' },
+});
+const typMapaPrzewodnik = await prisma.typProduktu.upsert({ // <--- I TEN
+  where: { nazwa: 'Mapa/Przewodnik' }, update: {},
+  create: { nazwa: 'Mapa/Przewodnik', slug: 'mapy-przewodniki', opis: 'Mapy, atlasy i przewodniki turystyczne.' },
+});
+const typPodrecznik = await prisma.typProduktu.upsert({ // <--- I TEN
+  where: { nazwa: 'Podręcznik' }, update: {},
+  create: { nazwa: 'Podręcznik', slug: 'podreczniki', opis: 'Podręczniki szkolne i akademickie.' },
+});
+const typKsiazkaNaukaJezyka = await prisma.typProduktu.upsert({ // <--- I TEN
+  where: { nazwa: 'Książka do nauki języka' }, update: {},
+  create: { nazwa: 'Książka do nauki języka', slug: 'nauka-jezykow', opis: 'Materiały do nauki języków obcych.' },
+});
+const typKsiazkaObcojezyczna = await prisma.typProduktu.upsert({ // <--- I TEN
+  where: { nazwa: 'Książka obcojęzyczna' }, update: {},
+  create: { nazwa: 'Książka obcojęzyczna', slug: 'ksiazki-obcojezyczne', opis: 'Książki w językach innych niż polski.' },
+});
+const typZabawka = await prisma.typProduktu.upsert({
+  where: { nazwa: 'Zabawka' }, update: {},
+  create: { nazwa: 'Zabawka', slug: 'zabawki', opis: 'Zabawki dla dzieci i nie tylko.' },
+});
+const typOutlet = await prisma.typProduktu.upsert({ // <--- I TEN
+  where: { nazwa: 'Outlet' }, update: {},
+  create: { nazwa: 'Outlet', slug: 'outlet', opis: 'Produkty w obniżonych cenach, np. z drobnymi wadami lub końcówki serii.' },
+});
+const typPozostale = await prisma.typProduktu.upsert({ // <--- I TEN
+  where: { nazwa: 'Pozostałe' }, update: {},
+  create: { nazwa: 'Pozostałe', slug: 'pozostale', opis: 'Inne produkty niepasujące do głównych kategorii.' },
+});
+console.log('Created product types.');
+
 
   // --- Statusy Zamówień ---
   const statusZamNowe = await prisma.statusZamowienia.upsert({
@@ -30,74 +83,35 @@ async function main() {
     update: {},
     create: { nazwa: 'Nowe', opis: 'Zamówienie zostało złożone.' },
   });
-
-  console.log('Created basic statuses.');
+  console.log('Created order statuses.');
 
   // --- Autorzy ---
-  // Zakładamy, że ID autora jest @default(autoincrement()), więc nie podajemy go w `create`
-  // jeśli chcemy, aby baza nadała ID. Jeśli chcemy konkretne ID dla seeda,
-  // to `where: {id: X}` i `create: {id: X, ...}` jest OK, ale `id` w `create`
-  // jest wtedy potrzebne, aby Prisma wiedziała, jakie ID nadać, jeśli rekord nie istnieje.
-  // Dla spójności z poprawką dla książek, jeśli Autor.id jest autoincrement,
-  // lepiej polegać na innym unikalnym polu w `where` lib tworzyć bez `id` w `create`.
-  // Poniżej zostawiam podejście z wymuszaniem ID dla autorów, bo tak było wcześniej.
   const autorSapkowski = await prisma.autor.upsert({
-    where: { id: 1 },
+    where: { id: 1 }, 
     update: {},
-    create: {
-      id: 1,
-      imie: 'Andrzej',
-      nazwisko: 'Sapkowski',
-      opis: 'Polski pisarz fantasy.',
-    },
+    create: { id: 1, imie: 'Andrzej', nazwisko: 'Sapkowski', opis: 'Polski pisarz fantasy.' },
   });
-
   const autorLem = await prisma.autor.upsert({
     where: { id: 2 },
     update: {},
-    create: {
-      id: 2,
-      imie: 'Stanisław',
-      nazwisko: 'Lem',
-      opis: 'Polski pisarz science fiction, filozof.',
-    },
+    create: { id: 2, imie: 'Stanisław', nazwisko: 'Lem', opis: 'Polski pisarz science fiction, filozof.' },
   });
-
   const autorTolkien = await prisma.autor.upsert({
     where: { id: 3 },
     update: {},
-    create: {
-      id: 3,
-      imie: 'J.R.R.',
-      nazwisko: 'Tolkien',
-      opis: 'Angielski pisarz oraz profesor filologii klasycznej i literatury staroangielskiej na Uniwersytecie Oksfordzkim.',
-    },
+    create: { id: 3, imie: 'J.R.R.', nazwisko: 'Tolkien', opis: 'Angielski pisarz.' },
   });
-
   const autorHerbert = await prisma.autor.upsert({
     where: { id: 4 },
     update: {},
-    create: {
-      id: 4,
-      imie: 'Frank',
-      nazwisko: 'Herbert',
-      opis: 'Amerykański pisarz science fiction.',
-    },
+    create: { id: 4, imie: 'Frank', nazwisko: 'Herbert', opis: 'Amerykański pisarz science fiction.' },
   });
-
   const autorLewis = await prisma.autor.upsert({
-    where: { id: 5 }, // Nowy autor dla Narnii
+    where: { id: 5 },
     update: {},
-    create: {
-      id: 5,
-      imie: 'C.S.',
-      nazwisko: 'Lewis',
-      opis: 'Brytyjski pisarz, filolog i świecki teolog anglikański.',
-    },
+    create: { id: 5, imie: 'C.S.', nazwisko: 'Lewis', opis: 'Brytyjski pisarz.' },
   });
-
-
-  console.log(`Created authors: Sapkowski, Lem, Tolkien, Herbert, Lewis`);
+  console.log(`Created authors.`);
 
   // --- Gatunki ---
   const gatunekFantasy = await prisma.gatunek.upsert({
@@ -105,183 +119,192 @@ async function main() {
     update: {},
     create: { nazwa: 'Fantasy', opis: 'Elementy magii i nadprzyrodzone.' },
   });
-
   const gatunekSciFi = await prisma.gatunek.upsert({
     where: { nazwa: 'Science Fiction' },
     update: {},
     create: { nazwa: 'Science Fiction', opis: 'Nauka i technologia przyszłości.' },
   });
-
   const gatunekPrzygodowa = await prisma.gatunek.upsert({
     where: { nazwa: 'Przygodowa' },
     update: {},
     create: { nazwa: 'Przygodowa', opis: 'Powieści pełne akcji i przygód.' },
   });
-
-  const gatunekRomans = await prisma.gatunek.upsert({
-    where: { nazwa: 'Romans' },
+  const gatunekDlaDzieci = await prisma.gatunek.upsert({
+    where: { nazwa: 'Dla dzieci' },
     update: {},
-    create: { nazwa: 'Romans', opis: 'Historie miłosne.' },
+    create: { nazwa: 'Dla dzieci', opis: 'Literatura dziecięca.' },
   });
+  console.log(`Created genres.`);
 
-  console.log(`Created genres: Fantasy, Science Fiction, Przygodowa, Romans`);
+  // --- Produkty (zamiast Ksiazki) ---
 
-  // --- Książki ---
-  // ID Książki jest @default(autoincrement()), więc NIE podajemy go w `create`.
-  // `where: { id: X }` w `upsert` służy do znalezienia rekordu do aktualizacji.
-
-  await prisma.ksiazka.upsert({
-    where: { id: 1 },
-    update: { // Pola do aktualizacji, jeśli książka o ID 1 istnieje
+  // Przykład 1: Książka "Wiedźmin"
+  await prisma.produkt.upsert({
+    where: { id: 1 }, // Używamy ID dla produktu dla spójności seeda
+    update: {
       tytul: 'Wiedźmin: Ostatnie życzenie',
-      rokWydania: 1993,
       cena: 35.99,
       opisStanu: 'Bardzo dobry, lekkie ślady użytkowania na okładce.',
-      statusKsiazkiId: statusDostepna.id,
-      // Można też zaktualizować relacje, np. używając `set` do nadpisania
-      // autorzy: { set: [{ id: autorSapkowski.id }] },
-      // gatunki: { set: [{ id: gatunekFantasy.id }] },
+      statusProduktuId: statusProdDostepny.id,
+      typProduktuId: typKsiazka.id,
+
+      daneKsiazki: {
+        update: {
+            rokWydania: 1993,
+            liczbaStron: 288,
+            wydawnictwo: 'superNOWA',
+            oprawa: 'Miękka',
+        }
+      }
     },
-    create: { // Pola do stworzenia, jeśli książka o ID 1 nie istnieje
-      // id: 1, <--- USUNIĘTE, bo jest autoincrement
+    create: {
       tytul: 'Wiedźmin: Ostatnie życzenie',
-      rokWydania: 1993,
       cena: 35.99,
       opisStanu: 'Bardzo dobry, lekkie ślady użytkowania na okładce.',
-      statusKsiazki: { connect: { id: statusDostepna.id } },
-      autorzy: { connect: [{ id: autorSapkowski.id }] },
-      gatunki: { connect: [{ id: gatunekFantasy.id }] },
+      opis: 'Zbiór opowiadań fantasy Andrzeja Sapkowskiego, pierwszy tom sagi o wiedźminie Geralcie z Rivii.',
+      kodEanIsbn: '9788375780635', // Przykładowy ISBN
+      statusProduktu: { connect: { id: statusProdDostepny.id } },
+      typProduktu: { connect: { id: typKsiazka.id } },
       zdjecia: {
         create: [
           { url: '/images/cover.png', opisAlt: 'Okładka Wiedźmina', czyGlowne: true },
-          { url: '/images/cover.png', opisAlt: 'Strona z Wiedźmina', czyGlowne: false },
         ]
+      },
+      daneKsiazki: { // Tworzenie powiązanych danych specyficznych dla książki
+        create: {
+          rokWydania: 1993,
+          liczbaStron: 288,
+          wydawnictwo: 'superNOWA',
+          oprawa: 'Miękka',
+          autorzy: { connect: [{ id: autorSapkowski.id }] },
+          gatunki: { connect: [{ id: gatunekFantasy.id }] },
+        }
       }
     },
   });
 
-  await prisma.ksiazka.upsert({
+  // Przykład 2: Książka "Solaris"
+  await prisma.produkt.upsert({
     where: { id: 2 },
     update: {
-      tytul: 'Solaris',
-      rokWydania: 1961,
-      cena: 29.50,
-      opisStanu: 'Dobry, lekkie zagięcia okładki, pożółkłe strony.',
-      statusKsiazkiId: statusDostepna.id,
+        tytul: 'Solaris',
+        cena: 29.50,
+        opisStanu: 'Dobry, lekkie zagięcia okładki, pożółkłe strony.',
+        statusProduktuId: statusProdDostepny.id,
+        typProduktuId: typKsiazka.id,
+        daneKsiazki: {
+            update: {
+                rokWydania: 1961,
+                liczbaStron: 208,
+                wydawnictwo: 'Wydawnictwo Literackie',
+            }
+        }
     },
     create: {
-      // id: 2, <--- USUNIĘTE
       tytul: 'Solaris',
-      rokWydania: 1961,
       cena: 29.50,
       opisStanu: 'Dobry, lekkie zagięcia okładki, pożółkłe strony.',
-      statusKsiazki: { connect: { id: statusDostepna.id } },
-      autorzy: { connect: [{ id: autorLem.id }] },
-      gatunki: { connect: [{ id: gatunekSciFi.id }] },
-      zdjecia: {
-        create: [
-          { url: '/images/cover.png', opisAlt: 'Okładka Solaris', czyGlowne: true },
-        ]
+      opis: 'Powieść science fiction Stanisława Lema.',
+      kodEanIsbn: '9788308068619',
+      statusProduktu: { connect: { id: statusProdDostepny.id } },
+      typProduktu: { connect: { id: typKsiazka.id } },
+      zdjecia: { create: [{ url: '/images/cover.png', opisAlt: 'Okładka Solaris', czyGlowne: true }] },
+      daneKsiazki: {
+        create: {
+          rokWydania: 1961,
+          liczbaStron: 208,
+          wydawnictwo: 'Wydawnictwo Literackie',
+          autorzy: { connect: [{ id: autorLem.id }] },
+          gatunki: { connect: [{ id: gatunekSciFi.id }] },
+        }
       }
     },
   });
 
-  await prisma.ksiazka.upsert({
+  // Przykład 3: Audiobook "Hobbit" (fikcyjny)
+  await prisma.produkt.upsert({
     where: { id: 3 },
     update: {
-      tytul: 'Hobbit, czyli tam i z powrotem',
-      rokWydania: 1937,
-      cena: 45.00,
-      opisStanu: 'Stan idealny, jak nowa.',
-      statusKsiazkiId: statusDostepna.id,
+        tytul: 'Hobbit - Audiobook',
+        cena: 49.90,
+        opisStanu: 'Nowy',
+        statusProduktuId: statusProdDostepny.id,
+        typProduktuId: typAudiobook.id,
+        daneAudiobooka: {
+            update: {
+                lektor: 'Krzysztof Gosztyła',
+                czasTrwaniaMin: 600,
+                rokWydania: 2022,
+            }
+        }
     },
     create: {
-      // id: 3, <--- USUNIĘTE
-      tytul: 'Hobbit, czyli tam i z powrotem',
-      rokWydania: 1937,
-      cena: 45.00,
-      opisStanu: 'Stan idealny, jak nowa.',
-      statusKsiazki: { connect: { id: statusDostepna.id } },
-      autorzy: { connect: [{ id: autorTolkien.id }] },
-      gatunki: { connect: [{ id: gatunekFantasy.id }, { id: gatunekPrzygodowa.id }] },
-      zdjecia: {
-        create: [
-          { url: '/images/cover.png', opisAlt: 'Okładka Hobbita', czyGlowne: true },
-        ]
+      tytul: 'Hobbit - Audiobook',
+      cena: 49.90,
+      opisStanu: 'Nowy',
+      opis: 'Audiobook na podstawie powieści J.R.R. Tolkiena.',
+      statusProduktu: { connect: { id: statusProdDostepny.id } },
+      typProduktu: { connect: { id: typAudiobook.id } },
+      zdjecia: { create: [{ url: '/images/cover.png', opisAlt: 'Okładka audiobooka Hobbit', czyGlowne: true }] },
+      daneAudiobooka: {
+        create: {
+          lektor: 'Krzysztof Gosztyła',
+          czasTrwaniaMin: 600, // 10 godzin
+          formatPliku: 'MP3',
+          rokWydania: 2022,
+          autorzy: { connect: [{ id: autorTolkien.id }] }, // Autor oryginalnego dzieła
+          gatunki: { connect: [{ id: gatunekFantasy.id }, { id: gatunekPrzygodowa.id }] },
+        }
       }
     },
   });
 
-  await prisma.ksiazka.upsert({
+  // Przykład 4: Zabawka (fikcyjna)
+  await prisma.produkt.upsert({
     where: { id: 4 },
     update: {
-      tytul: 'Diuna',
-      rokWydania: 1965,
-      cena: 55.90,
-      opisStanu: 'Dobry plus, niewielkie przetarcia na grzbiecie.',
-      statusKsiazkiId: statusDostepna.id,
+        tytul: 'Pluszowy Smok',
+        cena: 79.00,
+        opisStanu: 'Nowy',
+        statusProduktuId: statusProdDostepny.id,
+        typProduktuId: typZabawka.id,
+        daneZabawki: {
+            update: {
+                wiekDocelowyOd: 3,
+                producent: 'Smocze Zabawki Co.',
+            }
+        }
     },
     create: {
-      // id: 4, <--- USUNIĘTE
-      tytul: 'Diuna',
-      rokWydania: 1965,
-      cena: 55.90,
-      opisStanu: 'Dobry plus, niewielkie przetarcia na grzbiecie.',
-      statusKsiazki: { connect: { id: statusDostepna.id } },
-      autorzy: { connect: [{ id: autorHerbert.id }] },
-      gatunki: { connect: [{ id: gatunekSciFi.id }] },
-      zdjecia: {
-        create: [
-          { url: '/images/cover.png', opisAlt: 'Okładka Diuny', czyGlowne: true },
-        ]
+      tytul: 'Pluszowy Smok',
+      cena: 79.00,
+      opisStanu: 'Nowy',
+      opis: 'Miękki i przyjazny pluszowy smok dla dzieci.',
+      kodEanIsbn: '5901234567890', // Przykładowy EAN
+      statusProduktu: { connect: { id: statusProdDostepny.id } },
+      typProduktu: { connect: { id: typZabawka.id } },
+      zdjecia: { create: [{ url: '/images/cover.png', opisAlt: 'Pluszowy smok', czyGlowne: true }] },
+      daneZabawki: {
+        create: {
+          wiekDocelowyOd: 3, // Wiek w latach
+          producent: 'Smocze Zabawki Co.',
+          material: 'Plusz, poliester',
+          certyfikaty: 'CE',
+        }
       }
     },
   });
 
-  await prisma.ksiazka.upsert({
-    where: { id: 5 },
-    update: {
-      tytul: 'Opowieści z Narnii: Lew, czarownica i stara szafa',
-      rokWydania: 1950,
-      cena: 22.00,
-      opisStanu: 'Stan dostateczny, okładka podniszczona, strony czyste.',
-      statusKsiazkiId: statusDostepna.id,
-    },
-    create: {
-      // id: 5, <--- USUNIĘTE
-      tytul: 'Opowieści z Narnii: Lew, czarownica i stara szafa',
-      rokWydania: 1950,
-      cena: 22.00,
-      opisStanu: 'Stan dostateczny, okładka podniszczona, strony czyste.',
-      statusKsiazki: { connect: { id: statusDostepna.id } },
-      autorzy: { connect: [{ id: autorLewis.id }] }, // Połączenie z nowo dodanym autorem C.S. Lewis
-      gatunki: { connect: [{ id: gatunekFantasy.id }, { id: gatunekPrzygodowa.id }] },
-      zdjecia: {
-        create: [
-          { url: '/images/cover.png', opisAlt: 'Okładka Narnii', czyGlowne: true },
-        ]
-      }
-    },
-  });
 
-  console.log(`Created/updated books.`);
+  console.log(`Created/updated products.`);
 
   // --- Użytkownicy ---
-  // Zakładamy, że User.id jest autoincrement, więc nie podajemy go w create.
-  // Jeśli chcesz konkretne ID, to where: {id: X} i create: {id: X, ...}
   const user1 = await prisma.user.upsert({
-    where: { email: 'test@example.com' }, // email jest @unique, więc dobre dla where
-    update: { // Co zaktualizować, jeśli user istnieje
-        nazwisko: 'Kowalski',
-        name: 'Jan',
-        role: Role.USER,
-        czyAktywny: true,
-        // Nie aktualizuj hasła przy każdym seedowaniu, chyba że to celowe
-    },
+    where: { email: 'test@example.com' },
+    update: { nazwisko: 'Kowalski', name: 'Jan', role: Role.USER, czyAktywny: true },
     create: {
-      // id: 1, // Jeśli User.id jest autoincrement, nie podawaj
       email: 'test@example.com',
-      password: 'password123_seed', // PAMIĘTAJ: To powinno być zahashowane w prawdziwej aplikacji!
+      password: 'password123_seed', // PAMIĘTAJ: Hashuj!
       nazwisko: 'Kowalski',
       name: 'Jan',
       role: Role.USER,
@@ -291,12 +314,7 @@ async function main() {
 
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
-    update: {
-        nazwisko: 'Admin',
-        name: 'Super',
-        role: Role.ADMIN,
-        czyAktywny: true,
-    },
+    update: { nazwisko: 'Admin', name: 'Super', role: Role.ADMIN, czyAktywny: true },
     create: {
       email: 'admin@example.com',
       password: 'adminpassword_seed', // PAMIĘTAJ: Hashuj!
@@ -306,7 +324,6 @@ async function main() {
       czyAktywny: true,
     },
   });
-
   console.log(`Created/updated users: ${user1.email}, ${adminUser.email}`);
 
   console.log(`Seeding finished.`);
