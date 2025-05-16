@@ -2,36 +2,37 @@
 import prisma from '@/lib/prisma';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import AddToCartButton from '@/app/components/AddToCartButton';
 // Rozważ stworzenie osobnego komponentu klienckiego dla przycisku "Dodaj do koszyka"
 // import AddToCartButton from '@/components/AddToCartButton';
 
 // Funkcja pomocnicza do serializacji produktu (i jego zagnieżdżonych danych)
 const serializeProductDetails = (product) => {
-  if (!product) return null;
+    if (!product) return null;
 
-  const serialized = {
-    ...product,
-    cena: product.cena.toNumber(),
-    dataDodania: product.dataDodania.toISOString(),
-    dataModyfikacji: product.dataModyfikacji ? product.dataModyfikacji.toISOString() : null,
-    daneKsiazki: product.daneKsiazki ? { ...product.daneKsiazki } : null,
-    daneAudiobooka: product.daneAudiobooka ? { ...product.daneAudiobooka } : null,
-    daneEbooka: product.daneEbooka ? { ...product.daneEbooka } : null,
-    daneKomiksu: product.daneKomiksu ? { ...product.daneKomiksu } : null,
-    daneCzasopisma: product.daneCzasopisma && product.daneCzasopisma.dataWydania ? {
-        ...product.daneCzasopisma,
-        dataWydania: product.daneCzasopisma.dataWydania.toISOString(),
-    } : product.daneCzasopisma,
-    daneMapyPrzewodnika: product.daneMapyPrzewodnika ? { ...product.daneMapyPrzewodnika } : null,
-    danePodrecznika: product.danePodrecznika ? { ...product.danePodrecznika } : null,
-    daneKsiazkiDoNaukiJezyka: product.daneKsiazkiDoNaukiJezyka ? { ...product.daneKsiazkiDoNaukiJezyka } : null,
-    daneKsiazkiObcojezycznej: product.daneKsiazkiObcojezycznej ? { ...product.daneKsiazkiObcojezycznej } : null,
-    daneZabawki: product.daneZabawki ? { ...product.daneZabawki } : null,
-    zdjecia: product.zdjecia.map(zdjecie => ({ ...zdjecie })),
-    typProduktu: { ...product.typProduktu },
-    statusProduktu: { ...product.statusProduktu },
-  };
-  return serialized;
+    const serialized = {
+        ...product,
+        cena: product.cena.toNumber(),
+        dataDodania: product.dataDodania.toISOString(),
+        dataModyfikacji: product.dataModyfikacji ? product.dataModyfikacji.toISOString() : null,
+        daneKsiazki: product.daneKsiazki ? { ...product.daneKsiazki } : null,
+        daneAudiobooka: product.daneAudiobooka ? { ...product.daneAudiobooka } : null,
+        daneEbooka: product.daneEbooka ? { ...product.daneEbooka } : null,
+        daneKomiksu: product.daneKomiksu ? { ...product.daneKomiksu } : null,
+        daneCzasopisma: product.daneCzasopisma && product.daneCzasopisma.dataWydania ? {
+            ...product.daneCzasopisma,
+            dataWydania: product.daneCzasopisma.dataWydania.toISOString(),
+        } : product.daneCzasopisma,
+        daneMapyPrzewodnika: product.daneMapyPrzewodnika ? { ...product.daneMapyPrzewodnika } : null,
+        danePodrecznika: product.danePodrecznika ? { ...product.danePodrecznika } : null,
+        daneKsiazkiDoNaukiJezyka: product.daneKsiazkiDoNaukiJezyka ? { ...product.daneKsiazkiDoNaukiJezyka } : null,
+        daneKsiazkiObcojezycznej: product.daneKsiazkiObcojezycznej ? { ...product.daneKsiazkiObcojezycznej } : null,
+        daneZabawki: product.daneZabawki ? { ...product.daneZabawki } : null,
+        zdjecia: product.zdjecia.map(zdjecie => ({ ...zdjecie })),
+        typProduktu: { ...product.typProduktu },
+        statusProduktu: { ...product.statusProduktu },
+    };
+    return serialized;
 };
 
 async function getProductDetails(productId) {
@@ -147,8 +148,8 @@ export default async function ProductDetailsPage({ params }) {
         if (rokOryginalnegoWydania) productSpecificDetails.push({ label: 'Rok oryg. wydania', value: rokOryginalnegoWydania });
         // Można dodać autorów/gatunki, jeśli są dziedziczone lub powiązane
         if (product.daneKsiazki?.autorzy?.length > 0) { // Przykład, jeśli książka obcojęzyczna to też 'Książka'
-             const authorsDisplay = product.daneKsiazki.autorzy.map(a => `${a.imie || ''} ${a.nazwisko}`.trim()).join(', ');
-             productSpecificDetails.push({ label: 'Autorzy', value: authorsDisplay });
+            const authorsDisplay = product.daneKsiazki.autorzy.map(a => `${a.imie || ''} ${a.nazwisko}`.trim()).join(', ');
+            productSpecificDetails.push({ label: 'Autorzy', value: authorsDisplay });
         }
     } else if (product.typProduktu?.nazwa === 'Zabawka' && product.daneZabawki) {
         const { wiekDocelowyOd, wiekDocelowyDo, producent, material, certyfikaty } = product.daneZabawki;
@@ -201,8 +202,8 @@ export default async function ProductDetailsPage({ params }) {
                             {product.statusProduktu && (
                                 <p className={`text-xs font-bold mb-4 px-2.5 py-1 inline-block rounded-full
                                     ${isAvailable ? 'bg-green-100 text-green-800' :
-                                    product.statusProduktu.nazwa === 'Zarezerwowany' ? 'bg-yellow-100 text-yellow-800' :
-                                        'bg-red-100 text-red-800'}`}>
+                                        product.statusProduktu.nazwa === 'Zarezerwowany' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-red-100 text-red-800'}`}>
                                     {product.statusProduktu.nazwa}
                                 </p>
                             )}
@@ -217,7 +218,7 @@ export default async function ProductDetailsPage({ params }) {
                                     <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">{product.opis}</p>
                                 </div>
                             )}
-                            
+
                             {product.opisStanu && (
                                 <div className="mb-6">
                                     <h2 className="text-lg font-semibold text-gray-800 mb-1">Stan produktu</h2>
@@ -238,24 +239,21 @@ export default async function ProductDetailsPage({ params }) {
                                     </dl>
                                 </div>
                             )}
-                            
+
                             <p className="text-xs text-gray-400 mt-4">
                                 {product.kodEanIsbn && <>Kod: {product.kodEanIsbn}<br /></>}
                                 Data dodania: {new Date(product.dataDodania).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric' })}
                             </p>
 
                             <div className="mt-auto pt-8">
-                                {/* Rozważ użycie dedykowanego komponentu klienckiego dla przycisku i logiki koszyka */}
-                                <button
-                                    disabled={!isAvailable}
-                                    onClick={() => alert('Logika dodawania do koszyka do zaimplementowania (najlepiej w komponencie klienckim)')}
-                                    className={`w-full py-3 px-6 rounded-md font-semibold text-white text-base sm:text-lg transition-colors
-                                        ${isAvailable
-                                        ? 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300'
-                                        : 'bg-gray-400 cursor-not-allowed'}`}
-                                >
-                                    {isAvailable ? 'Dodaj do koszyka' : (product.statusProduktu?.nazwa || 'Niedostępny')}
-                                </button>
+                                <div className="mt-auto pt-8">
+                                    <AddToCartButton
+                                        productId={product.id}
+                                        productName={product.tytul}
+                                        isAvailable={isAvailable}
+                                        currentStatusName={product.statusProduktu?.nazwa}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -288,7 +286,7 @@ export async function generateMetadata({ params }) {
         description = `Autor: ${authorsString}. ${description}`;
         if (description.length > 155) description = description.substring(0, 152) + "...";
     }
-    
+
     const imageUrl = product.zdjecia?.[0]?.url || '/images/cover.png';
 
     return {
@@ -296,9 +294,9 @@ export async function generateMetadata({ params }) {
         description: description,
         openGraph: {
             title: `${product.tytul} - E-Kwariat`,
-            description: product.opis?.substring(0,100) || description,
+            description: product.opis?.substring(0, 100) || description,
             images: [{ url: imageUrl, width: 800, height: 600, alt: `Okładka ${product.tytul}` }],
-            type: 'product', // Można dodać typ OpenGraph
+            type: 'article',
         },
     };
 }
