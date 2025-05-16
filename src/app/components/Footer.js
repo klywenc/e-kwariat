@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
     return (
       <footer className="bg-gray-800 text-gray-300 py-6">
@@ -5,8 +7,12 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} E-Kwariat. Wszelkie prawa zastrzeżone.</p>
           {/* Możesz dodać linki do polityki prywatności, regulaminu itp. */}
           <div className="mt-2 space-x-4">
-             <a href="/polityka-prywatnosci" className="hover:text-white text-sm">Polityka Prywatności</a>
-             <a href="/regulamin" className="hover:text-white text-sm">Regulamin</a>
+              <Link href="/privacy-policy" className="hover:text-white text-sm">
+                  Polityka Prywatności
+              </Link>
+              <Link href="/terms-of-service" className="hover:text-white text-sm">
+                  Regulamin
+              </Link>
           </div>
         </div>
       </footer>
