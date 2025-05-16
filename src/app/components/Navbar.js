@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Bars3Icon, XMarkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { FaCartShopping } from "react-icons/fa6";
+import { IoIosLogOut } from "react-icons/io";
 
 export default function Navbar() {
     const { data: session } = useSession();
@@ -75,57 +77,56 @@ export default function Navbar() {
                     </form>
 
                     <div className="md:hidden order-2">
-                        <button onClick={toggleMenu} className="text-gray-600 hover:text-indigo-600 focus:outline-none">
+                        <button onClick={toggleMenu} className="text-gray-700 hover:text-indigo-600 focus:outline-none">
                             {isMenuOpen ? <XMarkIcon className="h-7 w-7"/> : <Bars3Icon className="h-7 w-7"/>}
                         </button>
                     </div>
 
-                    {/* Linki nawigacyjne i sekcja użytkownika - bez zmian */}
                     <div className="hidden md:flex items-center space-x-4 order-3">
-                        <Link href="/" className="text-gray-600 hover:text-indigo-600">Główna</Link>
-                        <Link href="/about" className="text-gray-600 hover:text-indigo-600">O Nas</Link>
+                        <Link href="/" className="text-gray-700 hover:text-indigo-600">Główna</Link>
+                        <Link href="/about" className="text-gray-700 hover:text-indigo-600">O Nas</Link>
                         {session?.user?.role === 'ADMIN' && (
-                            <Link href="/admin/offers" className="bg-indigo-500 text-white px-3 py-2 rounded-md text-sm hover:bg-indigo-600 whitespace-nowrap">Zarządzaj</Link>
+                            <Link href="/admin/offers" className="text-gray-700 hover:text-indigo-600">Zarządzaj</Link>
                         )}
                         {session?.user && session?.user?.role !== 'ADMIN' && (
-                             <Link href="/offers" className="bg-green-500 text-white px-3 py-2 rounded-md text-sm hover:bg-green-600 whitespace-nowrap">Dodaj Ofertę</Link>
+                             <Link href="/offers" className="text-gray-700 hover:text-indigo-600">Dodaj Ofertę</Link>
                         )}
                         {session?.user ? (
                             <div className="flex items-center space-x-3">
-                                <Link href="/cart" className="text-gray-600 hover:text-indigo-600">Koszyk</Link>
-                                <span className="text-gray-700 text-sm">
+                                <Link href="/cart" className="text-gray-700 hover:text-indigo-600"><FaCartShopping /></Link>
+                                <span className="text-gray-800">
                                     Witaj, <Link href="/profil" className="font-medium hover:text-indigo-600">{session.user.name || session.user.email}</Link>
                                 </span>
-                                <button onClick={() => signOut()} className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 text-sm cursor-pointer">Wyloguj</button>
+                                <button onClick={() => signOut()} className="text-gray-700 hover:text-red-600 cursor-pointer flex items-center"><IoIosLogOut className="mr-2 h-5 w-5 whitespace-nowrap" /><span>Wyloguj się</span></button>
                             </div>
                         ) : (
                             <div className="flex space-x-2">
-                                <Link href="/login" className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm">Zaloguj</Link>
-                                <Link href="/register" className="text-indigo-600 border border-indigo-600 px-4 py-2 rounded-md hover:bg-indigo-50 text-sm">Zarejestruj</Link>
+                                <Link href="/login" className="bg-indigo-700 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm">Zaloguj</Link>
+                                <Link href="/register" className="text-indigo-700 border border-indigo-600 px-4 py-2 rounded-md hover:bg-indigo-50 text-sm">Zarejestruj</Link>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* Menu mobilne - bez zmian */}
             {isMenuOpen && (
                 <div className="md:hidden border-t border-gray-200 bg-white">
                     <div className="container mx-auto px-4 py-4 flex flex-col space-y-3 items-center">
                         <Link href="/" className="block text-gray-700 hover:text-indigo-600 py-2" onClick={closeMenu}>Strona Główna</Link>
                         <Link href="/about" className="block text-gray-700 hover:text-indigo-600 py-2" onClick={closeMenu}>O Nas</Link>
                         {session?.user?.role === 'ADMIN' && (
-                            <Link href="/admin/offers" className="block bg-indigo-500 text-white w-full max-w-xs text-center px-3 py-2 rounded-md text-sm hover:bg-indigo-600" onClick={closeMenu}>Zarządzaj Ofertami</Link>
+                            <Link href="/admin/offers" className="text-gray-700 hover:text-indigo-600" onClick={closeMenu}>Zarządzaj Ofertami</Link>
                         )}
                         {session?.user && session?.user?.role !== 'ADMIN' && (
-                             <Link href="/offers" className="block bg-green-500 text-white w-full max-w-xs text-center px-3 py-2 rounded-md text-sm hover:bg-green-600" onClick={closeMenu}>Dodaj Ofertę</Link>
+                             <Link href="/offers" className="text-gray-700 hover:text-indigo-600" onClick={closeMenu}>Dodaj Ofertę</Link>
                         )}
                         {session?.user ? (
                             <>
-                                <div className="text-gray-700 py-2 text-sm">
+                                <Link href="/cart" className="text-gray-700 hover:text-indigo-600"><FaCartShopping /></Link>
+                                <div className="text-gray-800 py-2">
                                     Witaj, <Link href="/profil" className="font-medium hover:text-indigo-600" onClick={closeMenu}>{session.user.name || session.user.email}</Link>
                                 </div>
-                                <button onClick={() => { signOut(); closeMenu(); }} className="block bg-red-500 text-white w-full max-w-xs text-center px-4 py-2 rounded-md hover:bg-red-600 text-sm cursor-pointer">Wyloguj się</button>
+                                <button onClick={() => { signOut(); closeMenu(); }} className="text-gray-700 hover:text-red-600 cursor-pointer flex items-center"><IoIosLogOut className="mr-2 h-5 w-5" />Wyloguj się</button>
                             </>
                         ) : (
                             <div className="flex flex-col space-y-3 w-full max-w-xs items-center pt-2">

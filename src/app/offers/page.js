@@ -478,8 +478,8 @@ export default function OffersPage() {
                     </span>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onClick={() => handleEdit(product)} className="text-indigo-600 hover:text-indigo-900 mr-3">Edytuj</button>
-                    <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900">Usuń</button>
+                    <button onClick={() => handleEdit(product)} className="text-indigo-600 hover:text-indigo-900 mr-3 cursor-pointer">Edytuj</button>
+                    <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900 cursor-pointer">Usuń</button>
                   </td>
                 </tr>
               ))}
