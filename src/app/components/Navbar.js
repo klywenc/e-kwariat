@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Bars3Icon, XMarkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { FaCartShopping } from "react-icons/fa6";
 import { IoIosLogOut } from "react-icons/io";
+import { IoLogInOutline, IoPersonAddOutline } from "react-icons/io5";
 
 export default function Navbar() {
     const { data: session } = useSession();
@@ -84,7 +85,7 @@ export default function Navbar() {
 
                     <div className="hidden md:flex items-center space-x-4 order-3">
                         <Link href="/" className="text-gray-700 hover:text-indigo-600">Główna</Link>
-                        <Link href="/about" className="text-gray-700 hover:text-indigo-600">O Nas</Link>
+                        <Link href="/about" className="text-gray-700 hover:text-indigo-600 whitespace-nowrap">O Nas</Link>
                         {session?.user?.role === 'ADMIN' && (
                             <Link href="/admin/offers" className="text-gray-700 hover:text-indigo-600">Zarządzaj</Link>
                         )}
@@ -101,8 +102,14 @@ export default function Navbar() {
                             </div>
                         ) : (
                             <div className="flex space-x-2">
-                                <Link href="/login" className="bg-indigo-700 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm">Zaloguj</Link>
-                                <Link href="/register" className="text-indigo-700 border border-indigo-600 px-4 py-2 rounded-md hover:bg-indigo-50 text-sm">Zarejestruj</Link>
+                                <Link href="/login" className="bg-indigo-700 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm flex items-center">
+                                    <IoLogInOutline className="mr-2 h-5 w-5" />
+                                    Zaloguj
+                                </Link>
+                                <Link href="/register" className="text-indigo-700 border border-indigo-600 px-4 py-2 rounded-md hover:bg-indigo-50 text-sm flex items-center">
+                                    <IoPersonAddOutline className="mr-2 h-5 w-5" />
+                                    Zarejestruj
+                                </Link>
                             </div>
                         )}
                     </div>
@@ -113,7 +120,7 @@ export default function Navbar() {
                 <div className="md:hidden border-t border-gray-200 bg-white">
                     <div className="container mx-auto px-4 py-4 flex flex-col space-y-3 items-center">
                         <Link href="/" className="block text-gray-700 hover:text-indigo-600 py-2" onClick={closeMenu}>Strona Główna</Link>
-                        <Link href="/about" className="block text-gray-700 hover:text-indigo-600 py-2" onClick={closeMenu}>O Nas</Link>
+                        <Link href="/about" className="block text-gray-700 hover:text-indigo-600 py-2 whitespace-nowrap" onClick={closeMenu}>O Nas</Link>
                         {session?.user?.role === 'ADMIN' && (
                             <Link href="/admin/offers" className="text-gray-700 hover:text-indigo-600" onClick={closeMenu}>Zarządzaj Ofertami</Link>
                         )}
@@ -130,8 +137,22 @@ export default function Navbar() {
                             </>
                         ) : (
                             <div className="flex flex-col space-y-3 w-full max-w-xs items-center pt-2">
-                                <Link href="/login" className="block bg-indigo-600 text-white text-center w-full px-4 py-2 rounded-md hover:bg-indigo-700 text-sm" onClick={closeMenu}>Zaloguj się</Link>
-                                <Link href="/register" className="block text-indigo-600 border border-indigo-600 text-center w-full px-4 py-2 rounded-md hover:bg-indigo-50 text-sm" onClick={closeMenu}>Zarejestruj się</Link>
+                                <Link
+                                    href="/login"
+                                    className="block bg-indigo-600 text-white text-center w-full px-4 py-2 rounded-md hover:bg-indigo-700 text-sm flex items-center justify-center"
+                                    onClick={closeMenu}
+                                >
+                                    <IoLogInOutline className="mr-2 h-5 w-5" />
+                                    Zaloguj się
+                                </Link>
+                                <Link
+                                    href="/register"
+                                    className="block text-indigo-600 border border-indigo-600 text-center w-full px-4 py-2 rounded-md hover:bg-indigo-50 text-sm flex items-center justify-center"
+                                    onClick={closeMenu}
+                                >
+                                    <IoPersonAddOutline className="mr-2 h-5 w-5" />
+                                    Zarejestruj się
+                                </Link>
                             </div>
                         )}
                     </div>
