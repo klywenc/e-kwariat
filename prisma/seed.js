@@ -1,7 +1,7 @@
 // prisma/seed.js
-const { PrismaClient, Role } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
-const bcrypt = require('bcryptjs');
+import bcrypt from 'bcryptjs';
 
 async function main() {
   console.log(`Start seeding ...`);
@@ -355,7 +355,7 @@ console.log('Created product types.');
     update: { 
         nazwisko: 'Kowalski', 
         name: 'Jan', 
-        role: Role.USER, 
+        role: "USER",
         czyAktywny: true 
         // Nie aktualizujemy hasła przy każdym upsert, chyba że to celowe
     },
@@ -364,7 +364,7 @@ console.log('Created product types.');
       password: hashedPasswordUser, // <--- UŻYJ ZAHASHOWANEGO HASŁA
       nazwisko: 'Kowalski',
       name: 'Jan',
-      role: Role.USER,
+      role: "USER",
       czyAktywny: true,
     },
   });
@@ -374,7 +374,7 @@ console.log('Created product types.');
     update: { 
         nazwisko: 'Admin', 
         name: 'Super', 
-        role: Role.ADMIN, 
+        role: "ADMIN",
         czyAktywny: true 
     },
     create: {
@@ -382,7 +382,7 @@ console.log('Created product types.');
       password: hashedPasswordAdmin, // <--- UŻYJ ZAHASHOWANEGO HASŁA
       nazwisko: 'Admin',
       name: 'Super',
-      role: Role.ADMIN,
+      role: "ADMIN",
       czyAktywny: true,
     },
   });

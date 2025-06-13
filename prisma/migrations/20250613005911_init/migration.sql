@@ -78,10 +78,9 @@ CREATE TABLE "Produkty" (
     "Czy_Nowosc" BOOLEAN NOT NULL DEFAULT false,
     "typProduktuId" INTEGER NOT NULL,
     "ID_Statusu_Produktu" INTEGER NOT NULL,
-    "ID_Wlasciciela" INTEGER NOT NULL,
-    CONSTRAINT "Produkty_typProduktuId_fkey" FOREIGN KEY ("typProduktuId") REFERENCES "TypyProduktow" ("ID_Typu_Produktu") ON DELETE RESTRICT ON UPDATE CASCADE,
+    "czyZarezerwowany" BOOLEAN NOT NULL DEFAULT false,
     CONSTRAINT "Produkty_ID_Statusu_Produktu_fkey" FOREIGN KEY ("ID_Statusu_Produktu") REFERENCES "StatusyProduktow" ("ID_Statusu_Produktu") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Produkty_ID_Wlasciciela_fkey" FOREIGN KEY ("ID_Wlasciciela") REFERENCES "Uzytkownicy" ("ID_Uzytkownika") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Produkty_typProduktuId_fkey" FOREIGN KEY ("typProduktuId") REFERENCES "TypyProduktow" ("ID_Typu_Produktu") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -235,8 +234,8 @@ CREATE TABLE "Platnosci" (
     "Id_Transakcji_Zewn" TEXT,
     "ID_Zamowienia" INTEGER NOT NULL,
     "ID_Metody_Platnosci" INTEGER NOT NULL,
-    CONSTRAINT "Platnosci_ID_Zamowienia_fkey" FOREIGN KEY ("ID_Zamowienia") REFERENCES "Zamowienia" ("ID_Zamowienia") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "Platnosci_ID_Metody_Platnosci_fkey" FOREIGN KEY ("ID_Metody_Platnosci") REFERENCES "MetodyPlatnosci" ("ID_Metody_Platnosci") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Platnosci_ID_Metody_Platnosci_fkey" FOREIGN KEY ("ID_Metody_Platnosci") REFERENCES "MetodyPlatnosci" ("ID_Metody_Platnosci") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Platnosci_ID_Zamowienia_fkey" FOREIGN KEY ("ID_Zamowienia") REFERENCES "Zamowienia" ("ID_Zamowienia") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -246,8 +245,8 @@ CREATE TABLE "PozycjeZamowien" (
     "Cena_Jednostkowa" DECIMAL NOT NULL,
     "ID_Zamowienia" INTEGER NOT NULL,
     "ID_Produktu" INTEGER NOT NULL,
-    CONSTRAINT "PozycjeZamowien_ID_Zamowienia_fkey" FOREIGN KEY ("ID_Zamowienia") REFERENCES "Zamowienia" ("ID_Zamowienia") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "PozycjeZamowien_ID_Produktu_fkey" FOREIGN KEY ("ID_Produktu") REFERENCES "Produkty" ("ID_Produktu") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "PozycjeZamowien_ID_Produktu_fkey" FOREIGN KEY ("ID_Produktu") REFERENCES "Produkty" ("ID_Produktu") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "PozycjeZamowien_ID_Zamowienia_fkey" FOREIGN KEY ("ID_Zamowienia") REFERENCES "Zamowienia" ("ID_Zamowienia") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -270,23 +269,20 @@ CREATE TABLE "Zamowienia" (
     "ID_Adresu_Dostawy" INTEGER NOT NULL,
     "ID_Metody_Dostawy" INTEGER NOT NULL,
     "ID_Statusu_Zamowienia" INTEGER NOT NULL,
-    CONSTRAINT "Zamowienia_ID_Uzytkownika_fkey" FOREIGN KEY ("ID_Uzytkownika") REFERENCES "Uzytkownicy" ("ID_Uzytkownika") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Zamowienia_ID_Adresu_Dostawy_fkey" FOREIGN KEY ("ID_Adresu_Dostawy") REFERENCES "Adresy" ("ID_Adresu") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Zamowienia_ID_Statusu_Zamowienia_fkey" FOREIGN KEY ("ID_Statusu_Zamowienia") REFERENCES "StatusyZamowien" ("ID_Statusu_Zamowienia") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Zamowienia_ID_Metody_Dostawy_fkey" FOREIGN KEY ("ID_Metody_Dostawy") REFERENCES "MetodyDostawy" ("ID_Metody_Dostawy") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Zamowienia_ID_Statusu_Zamowienia_fkey" FOREIGN KEY ("ID_Statusu_Zamowienia") REFERENCES "StatusyZamowien" ("ID_Statusu_Zamowienia") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Zamowienia_ID_Adresu_Dostawy_fkey" FOREIGN KEY ("ID_Adresu_Dostawy") REFERENCES "Adresy" ("ID_Adresu") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Zamowienia_ID_Uzytkownika_fkey" FOREIGN KEY ("ID_Uzytkownika") REFERENCES "Uzytkownicy" ("ID_Uzytkownika") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Rezerwacje" (
-    "ID_Rezerwacji" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "Data_Rozpoczecia" DATETIME NOT NULL,
-    "Data_Zakonczenia" DATETIME NOT NULL,
-    "Status_Rezerwacji" TEXT NOT NULL DEFAULT 'Aktywna',
-    "Data_Anulowania" DATETIME,
-    "ID_Uzytkownika" INTEGER NOT NULL,
-    "ID_Produktu" INTEGER NOT NULL,
-    CONSTRAINT "Rezerwacje_ID_Uzytkownika_fkey" FOREIGN KEY ("ID_Uzytkownika") REFERENCES "Uzytkownicy" ("ID_Uzytkownika") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "Rezerwacje_ID_Produktu_fkey" FOREIGN KEY ("ID_Produktu") REFERENCES "Produkty" ("ID_Produktu") ON DELETE CASCADE ON UPDATE CASCADE
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "dataRezerwacji" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "produktId" INTEGER NOT NULL,
+    "uzytkownikId" INTEGER NOT NULL,
+    CONSTRAINT "Rezerwacje_produktId_fkey" FOREIGN KEY ("produktId") REFERENCES "Produkty" ("ID_Produktu") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Rezerwacje_uzytkownikId_fkey" FOREIGN KEY ("uzytkownikId") REFERENCES "Uzytkownicy" ("ID_Uzytkownika") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -304,9 +300,8 @@ CREATE TABLE "ZgloszeniaProduktow" (
     "ID_Uzytkownika_Zglaszajacego" INTEGER NOT NULL,
     "ID_Admina_Oceniajacego" INTEGER,
     "ID_Produktu_Po_Dodaniu" INTEGER,
-    CONSTRAINT "ZgloszeniaProduktow_ID_Uzytkownika_Zglaszajacego_fkey" FOREIGN KEY ("ID_Uzytkownika_Zglaszajacego") REFERENCES "Uzytkownicy" ("ID_Uzytkownika") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "ZgloszeniaProduktow_ID_Admina_Oceniajacego_fkey" FOREIGN KEY ("ID_Admina_Oceniajacego") REFERENCES "Uzytkownicy" ("ID_Uzytkownika") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "ZgloszeniaProduktow_ID_Produktu_Po_Dodaniu_fkey" FOREIGN KEY ("ID_Produktu_Po_Dodaniu") REFERENCES "Produkty" ("ID_Produktu") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "ZgloszeniaProduktow_ID_Produktu_Po_Dodaniu_fkey" FOREIGN KEY ("ID_Produktu_Po_Dodaniu") REFERENCES "Produkty" ("ID_Produktu") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "ZgloszeniaProduktow_ID_Uzytkownika_Zglaszajacego_fkey" FOREIGN KEY ("ID_Uzytkownika_Zglaszajacego") REFERENCES "Uzytkownicy" ("ID_Uzytkownika") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -322,16 +317,8 @@ CREATE TABLE "PozycjeKoszyka" (
     "ilosc" INTEGER NOT NULL DEFAULT 1,
     "ID_Koszyka" INTEGER NOT NULL,
     "ID_Produktu" INTEGER NOT NULL,
-    CONSTRAINT "PozycjeKoszyka_ID_Koszyka_fkey" FOREIGN KEY ("ID_Koszyka") REFERENCES "Koszyki" ("ID_Koszyka") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "PozycjeKoszyka_ID_Produktu_fkey" FOREIGN KEY ("ID_Produktu") REFERENCES "Produkty" ("ID_Produktu") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
-CREATE TABLE "_AutorDaneKsiazki" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL,
-    CONSTRAINT "_AutorDaneKsiazki_A_fkey" FOREIGN KEY ("A") REFERENCES "Autorzy" ("ID_Autora") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "_AutorDaneKsiazki_B_fkey" FOREIGN KEY ("B") REFERENCES "DaneKsiazek" ("ID_Danych_Ksiazki") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "PozycjeKoszyka_ID_Produktu_fkey" FOREIGN KEY ("ID_Produktu") REFERENCES "Produkty" ("ID_Produktu") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "PozycjeKoszyka_ID_Koszyka_fkey" FOREIGN KEY ("ID_Koszyka") REFERENCES "Koszyki" ("ID_Koszyka") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -348,6 +335,14 @@ CREATE TABLE "_AutorDaneKomiksu" (
     "B" INTEGER NOT NULL,
     CONSTRAINT "_AutorDaneKomiksu_A_fkey" FOREIGN KEY ("A") REFERENCES "Autorzy" ("ID_Autora") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "_AutorDaneKomiksu_B_fkey" FOREIGN KEY ("B") REFERENCES "DaneKomiksow" ("ID_Danych_Komiksu") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "_AutorDaneKsiazki" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+    CONSTRAINT "_AutorDaneKsiazki_A_fkey" FOREIGN KEY ("A") REFERENCES "Autorzy" ("ID_Autora") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_AutorDaneKsiazki_B_fkey" FOREIGN KEY ("B") REFERENCES "DaneKsiazek" ("ID_Danych_Ksiazki") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -443,6 +438,9 @@ CREATE UNIQUE INDEX "StatusyZamowien_Nazwa_UN" ON "StatusyZamowien"("nazwa");
 CREATE UNIQUE INDEX "Zamowienia_Numer_UN" ON "Zamowienia"("Numer_Zamowienia");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Rezerwacje_produktId_key" ON "Rezerwacje"("produktId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "ZgloszProd_Produkt_UN" ON "ZgloszeniaProduktow"("ID_Produktu_Po_Dodaniu");
 
 -- CreateIndex
@@ -450,12 +448,6 @@ CREATE UNIQUE INDEX "Koszyki_ID_Uzytkownika_key" ON "Koszyki"("ID_Uzytkownika");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PozKosz_Uniq_Kosz_Produkt" ON "PozycjeKoszyka"("ID_Koszyka", "ID_Produktu");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_AutorDaneKsiazki_AB_unique" ON "_AutorDaneKsiazki"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_AutorDaneKsiazki_B_index" ON "_AutorDaneKsiazki"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_AutorDaneAudiobooka_AB_unique" ON "_AutorDaneAudiobooka"("A", "B");
@@ -468,6 +460,12 @@ CREATE UNIQUE INDEX "_AutorDaneKomiksu_AB_unique" ON "_AutorDaneKomiksu"("A", "B
 
 -- CreateIndex
 CREATE INDEX "_AutorDaneKomiksu_B_index" ON "_AutorDaneKomiksu"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_AutorDaneKsiazki_AB_unique" ON "_AutorDaneKsiazki"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_AutorDaneKsiazki_B_index" ON "_AutorDaneKsiazki"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_ArtystaDaneKomiksu_AB_unique" ON "_ArtystaDaneKomiksu"("A", "B");

@@ -378,7 +378,6 @@ model ZgloszenieProduktu {
   adminOceniajacyId          Int?      @map("ID_Admina_Oceniajacego")
   produktPoDodaniuId         Int?      @unique(map: "ZgloszProd_Produkt_UN") @map("ID_Produktu_Po_Dodaniu")
   produktPoDodaniu           Produkt?  @relation("ProduktZeZgloszenia", fields: [produktPoDodaniuId], references: [id])
-  adminOceniajacy            user?     @relation("ZgloszeniaOcenione", fields: [adminOceniajacyId], references: [id])
   uzytkownikZglaszajacy      user      @relation("ZgloszeniaZglaszajacego", fields: [uzytkownikZglaszajacyId], references: [id], onDelete: Cascade)
 
   @@map("ZgloszeniaProduktow")
