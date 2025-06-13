@@ -69,6 +69,14 @@ export async function POST(request) {
     if (typeof ilosc !== 'number' || ilosc <= 0) {
         return NextResponse.json({ error: 'Nieprawidłowa ilość' }, { status: 400 });
     }
+    const produkt = await prisma.produkt.findUnique({
+      where: { id: produktId },
+    });
+
+    if (!produkt) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
@@ -89,6 +97,8 @@ export async function POST(request) {
         data: { uzytkownikId: user.id },
       });
     }
+
+
 
     // Sprawdź, czy produkt już istnieje w koszyku
     const existingItem = await prisma.pozycjaKoszyka.findUnique({

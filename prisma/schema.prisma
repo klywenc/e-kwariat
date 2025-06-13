@@ -1,5 +1,3 @@
-// schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,33 +7,25 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-// --- Modele Użytkownika, Ról, Adresu ---
 model user {
   id                            Int                  @id @default(autoincrement()) @map("ID_Uzytkownika")
   email                         String               @unique(map: "Uzytkownicy_Email_UN")
   nazwisko                      String?
   name                          String?
-  password                      String? // PAMIĘTAJ O HASHOWANIU HASEŁ!
+  password                      String?
   createdAt                     DateTime             @default(now()) @map("Data_Rejestracji")
   updatedAt                     DateTime             @updatedAt
   czyAktywny                    Boolean              @default(true) @map("Czy_Aktywny")
   tokenResetHasla               String?              @map("Token_Reset_Hasla")
   dataWaznTokenu                DateTime?            @map("Data_Wazn_Tokenu")
+  role                          String               @default("USER")
   adresy                        Adres[]
-  role                          Role                 @default(USER)
-  zamowienia                    Zamowienie[]
-  rezerwacje                    Rezerwacja[]
-  zgloszeniaPrzezUzytkownika    ZgloszenieProduktu[] @relation("ZgloszeniaZglaszajacego")
-  ocenioneZgloszeniaPrzezAdmina ZgloszenieProduktu[] @relation("ZgloszeniaOcenione")
   koszyk                        Koszyk?
+  rezerwacje                    Rezerwacja[]
+  zamowienia                    Zamowienie[]
+  zgloszeniaPrzezUzytkownika    ZgloszenieProduktu[] @relation("ZgloszeniaZglaszajacego")
 
   @@map("Uzytkownicy")
-}
-
-enum Role {
-  USER
-  ADMIN
-  MODERATOR
 }
 
 model Adres {
@@ -54,11 +44,9 @@ model Adres {
   @@map("Adresy")
 }
 
-// --- NOWA STRUKTURA PRODUKTÓW ---
-
 model TypProduktu {
   id       Int       @id @default(autoincrement()) @map("ID_Typu_Produktu")
-  nazwa    String    @unique @map("Nazwa_Typu_Produktu") // Np. "Książka", "Audiobook MP3", "Komiks", "Zabawka", "Ebook", "Czasopismo"
+  nazwa    String    @unique @map("Nazwa_Typu_Produktu")
   opis     String?
   slug     String?   @unique
   produkty Produkt[]
@@ -68,7 +56,7 @@ model TypProduktu {
 
 model StatusProduktu {
   id       Int       @id @default(autoincrement()) @map("ID_Statusu_Produktu")
-  nazwa    String    @unique @map("Nazwa_Statusu_Produktu") // Np. "Dostępny", "Wyprzedany", "Na zamówienie"
+  nazwa    String    @unique @map("Nazwa_Statusu_Produktu")
   produkty Produkt[]
 
   @@map("StatusyProduktow")
@@ -79,10 +67,9 @@ model Autor {
   imie            String?
   nazwisko        String
   opis            String?
-  // ksiazki  Ksiazka[] @relation("KsiazkaAutor") // Ta relacja zostanie usunięta/zastąpiona
-  daneKsiazek     DaneKsiazki[]    @relation("AutorDaneKsiazki")
   daneAudiobookow DaneAudiobooka[] @relation("AutorDaneAudiobooka")
   daneKomiksow    DaneKomiksu[]    @relation("AutorDaneKomiksu")
+  daneKsiazek     DaneKsiazki[]    @relation("AutorDaneKsiazki")
 
   @@map("Autorzy")
 }
@@ -91,10 +78,9 @@ model Gatunek {
   id              Int              @id @default(autoincrement()) @map("ID_Gatunku")
   nazwa           String           @unique(map: "Gatunki_Nazwa_UN")
   opis            String?
-  // ksiazki Ksiazka[] @relation("KsiazkaGatunek") // Ta relacja zostanie usunięta/zastąpiona
-  daneKsiazek     DaneKsiazki[]    @relation("GatunekDaneKsiazki")
   daneAudiobookow DaneAudiobooka[] @relation("GatunekDaneAudiobooka")
   daneKomiksow    DaneKomiksu[]    @relation("GatunekDaneKomiksu")
+  daneKsiazek     DaneKsiazki[]    @relation("GatunekDaneKsiazki")
 
   @@map("Gatunki")
 }
@@ -109,60 +95,52 @@ model Artysta {
   @@map("Artysci")
 }
 
-// GŁÓWNY MODEL PRODUKTU
 model Produkt {
-  id              Int       @id @default(autoincrement()) @map("ID_Produktu")
-  tytul           String
-  cena            Decimal
-  opisStanu       String
-  opis            String?
-  dataDodania     DateTime  @default(now()) @map("Data_Dodania")
-  dataModyfikacji DateTime? @updatedAt @map("Data_Modyfikacji")
-  kodEanIsbn      String?   @unique @map("Kod_EAN_ISBN")
-  czyPolecany     Boolean   @default(false) @map("Czy_Polecany")
-  czyNowosc       Boolean   @default(false) @map("Czy_Nowosc")
-
-  typProduktuId Int
-  typProduktu   TypProduktu @relation(fields: [typProduktuId], references: [id])
-
-  statusProduktuId Int            @map("ID_Statusu_Produktu")
-  statusProduktu   StatusProduktu @relation(fields: [statusProduktuId], references: [id])
-
-  zdjecia ZdjecieProduktu[]
-
-  daneKsiazki              DaneKsiazki?
+  id                       Int                       @id @default(autoincrement()) @map("ID_Produktu")
+  tytul                    String
+  cena                     Decimal
+  opisStanu                String
+  opis                     String?
+  dataDodania              DateTime                  @default(now()) @map("Data_Dodania")
+  dataModyfikacji          DateTime?                 @updatedAt @map("Data_Modyfikacji")
+  kodEanIsbn               String?                   @unique @map("Kod_EAN_ISBN")
+  czyPolecany              Boolean                   @default(false) @map("Czy_Polecany")
+  czyNowosc                Boolean                   @default(false) @map("Czy_Nowosc")
+  typProduktuId            Int
+  statusProduktuId         Int                       @map("ID_Statusu_Produktu")
   daneAudiobooka           DaneAudiobooka?
-  daneKomiksu              DaneKomiksu?
-  daneZabawki              DaneZabawki?
   daneCzasopisma           DaneCzasopisma?
-  daneMapyPrzewodnika      DaneMapyPrzewodnika?
   daneEbooka               DaneEbooka?
-  danePodrecznika          DanePodrecznika?
+  daneKomiksu              DaneKomiksu?
+  daneKsiazki              DaneKsiazki?
   daneKsiazkiDoNaukiJezyka DaneKsiazkiDoNaukiJezyka?
   daneKsiazkiObcojezycznej DaneKsiazkiObcojezycznej?
-
-  pozycjeZamowien     PozycjaZamowienia[]
-  pozycjeKoszyka      PozycjaKoszyka[]
-  rezerwacje          Rezerwacja[]
-  zgloszeniePowiazane ZgloszenieProduktu? @relation("ProduktZeZgloszenia")
+  daneMapyPrzewodnika      DaneMapyPrzewodnika?
+  danePodrecznika          DanePodrecznika?
+  daneZabawki              DaneZabawki?
+  pozycjeKoszyka           PozycjaKoszyka[]
+  pozycjeZamowien          PozycjaZamowienia[]
+  statusProduktu           StatusProduktu            @relation(fields: [statusProduktuId], references: [id])
+  typProduktu              TypProduktu               @relation(fields: [typProduktuId], references: [id])
+  rezerwacja               Rezerwacja?
+  zdjecia                  ZdjecieProduktu[]
+  zgloszeniePowiazane      ZgloszenieProduktu?       @relation("ProduktZeZgloszenia")
+  czyZarezerwowany         Boolean                   @default(false)
 
   @@map("Produkty")
 }
 
-// --- Modele Danych Specyficznych dla Typu Produktu ---
 model DaneKsiazki {
-  id          Int     @id @default(autoincrement()) @map("ID_Danych_Ksiazki")
-  rokWydania  Int?    @map("Rok_Wydania")
+  id          Int       @id @default(autoincrement()) @map("ID_Danych_Ksiazki")
+  rokWydania  Int?      @map("Rok_Wydania")
   liczbaStron Int?
   wydawnictwo String?
   oprawa      String?
   format      String?
-
-  produktId Int     @unique @map("ID_Produktu")
-  produkt   Produkt @relation(fields: [produktId], references: [id], onDelete: Cascade)
-
-  autorzy Autor[]   @relation("AutorDaneKsiazki")
-  gatunki Gatunek[] @relation("GatunekDaneKsiazki")
+  produktId   Int       @unique @map("ID_Produktu")
+  produkt     Produkt   @relation(fields: [produktId], references: [id], onDelete: Cascade)
+  autorzy     Autor[]   @relation("AutorDaneKsiazki")
+  gatunki     Gatunek[] @relation("GatunekDaneKsiazki")
 
   @@map("DaneKsiazek")
 }
@@ -202,8 +180,8 @@ model DaneKomiksu {
   oprawa      String?
   produktId   Int       @unique @map("ID_Produktu")
   produkt     Produkt   @relation(fields: [produktId], references: [id], onDelete: Cascade)
-  scenarzysci Autor[]   @relation("AutorDaneKomiksu")
   rysownicy   Artysta[] @relation("ArtystaDaneKomiksu")
+  scenarzysci Autor[]   @relation("AutorDaneKomiksu")
   gatunki     Gatunek[] @relation("GatunekDaneKomiksu")
 
   @@map("DaneKomiksow")
@@ -295,8 +273,6 @@ model ZdjecieProduktu {
   @@map("ZdjeciaProduktow")
 }
 
-// --- Modele Zamówień, Płatności, Dostawy ---
-
 model MetodaDostawy {
   id                      Int          @id @default(autoincrement()) @map("ID_Metody_Dostawy")
   nazwa                   String       @unique 
@@ -319,27 +295,17 @@ model MetodaPlatnosci {
 }
 
 model Platnosc {
-  id                Int                 @id @default(autoincrement()) @map("ID_Platnosci")
+  id                Int             @id @default(autoincrement()) @map("ID_Platnosci")
   kwota             Decimal
-  dataPlatnosci     DateTime?           @map("Data_Platnosci")
-  statusPlatnosci   StatusPlatnosciEnum @map("Status_Platnosci")
-  idTransakcjiZewn  String?             @map("Id_Transakcji_Zewn")
-  zamowienieId      Int                 @map("ID_Zamowienia")
-  metodaPlatnosciId Int                 @map("ID_Metody_Platnosci")
-  zamowienie        Zamowienie          @relation(fields: [zamowienieId], references: [id], onDelete: Cascade)
-  metodaPlatnosci   MetodaPlatnosci     @relation(fields: [metodaPlatnosciId], references: [id], onDelete: Restrict)
+  dataPlatnosci     DateTime?       @map("Data_Platnosci")
+  statusPlatnosci   String          @map("Status_Platnosci")
+  idTransakcjiZewn  String?         @map("Id_Transakcji_Zewn")
+  zamowienieId      Int             @map("ID_Zamowienia")
+  metodaPlatnosciId Int             @map("ID_Metody_Platnosci")
+  metodaPlatnosci   MetodaPlatnosci @relation(fields: [metodaPlatnosciId], references: [id])
+  zamowienie        Zamowienie      @relation(fields: [zamowienieId], references: [id], onDelete: Cascade)
 
   @@map("Platnosci")
-}
-
-enum StatusPlatnosciEnum {
-  Oczekujaca
-  Udana
-  Nieudana
-  Anulowana
-  Zwrocona
-
-  @@map("status_platnosci_enum")
 }
 
 model PozycjaZamowienia {
@@ -347,11 +313,11 @@ model PozycjaZamowienia {
   ilosc           Int        @default(1)
   cenaJednostkowa Decimal    @map("Cena_Jednostkowa")
   zamowienieId    Int        @map("ID_Zamowienia")
-  produktId       Int        @map("ID_Produktu") // ZMIANA
+  produktId       Int        @map("ID_Produktu")
+  produkt         Produkt    @relation(fields: [produktId], references: [id])
   zamowienie      Zamowienie @relation(fields: [zamowienieId], references: [id], onDelete: Cascade)
-  produkt         Produkt    @relation(fields: [produktId], references: [id], onDelete: Restrict) // ZMIANA
 
-  @@unique([zamowienieId, produktId], map: "PozZam_Uniq_Zam_Produkt") // ZMIANA
+  @@unique([zamowienieId, produktId], map: "PozZam_Uniq_Zam_Produkt")
   @@map("PozycjeZamowien")
 }
 
@@ -376,69 +342,46 @@ model Zamowienie {
   adresDostawyId     Int                 @map("ID_Adresu_Dostawy")
   metodaDostawyId    Int                 @map("ID_Metody_Dostawy")
   statusZamowieniaId Int                 @map("ID_Statusu_Zamowienia")
-  uzytkownik         user                @relation(fields: [uzytkownikId], references: [id], onDelete: Restrict)
-  adresDostawy       Adres               @relation(fields: [adresDostawyId], references: [id], onDelete: Restrict)
-  metodaDostawy      MetodaDostawy       @relation(fields: [metodaDostawyId], references: [id], onDelete: Restrict)
-  statusZamowienia   StatusZamowienia    @relation(fields: [statusZamowieniaId], references: [id], onDelete: Restrict)
-  pozycje            PozycjaZamowienia[]
   platnosci          Platnosc[]
+  pozycje            PozycjaZamowienia[]
+  statusZamowienia   StatusZamowienia    @relation(fields: [statusZamowieniaId], references: [id])
+  metodaDostawy      MetodaDostawy       @relation(fields: [metodaDostawyId], references: [id])
+  adresDostawy       Adres               @relation(fields: [adresDostawyId], references: [id])
+  uzytkownik         user                @relation(fields: [uzytkownikId], references: [id])
 
   @@map("Zamowienia")
 }
 
-// --- Inne Modele (Rezerwacje, Zgłoszenia, Koszyk) ---
-
 model Rezerwacja {
-  id               Int                  @id @default(autoincrement()) @map("ID_Rezerwacji")
-  dataRozpoczecia  DateTime             @map("Data_Rozpoczecia")
-  dataZakonczenia  DateTime             @map("Data_Zakonczenia")
-  statusRezerwacji StatusRezerwacjiEnum @default(Aktywna) @map("Status_Rezerwacji")
-  dataAnulowania   DateTime?            @map("Data_Anulowania")
-  uzytkownikId     Int                  @map("ID_Uzytkownika")
-  produktId        Int                  @map("ID_Produktu") // ZMIANA
-  uzytkownik       user                 @relation(fields: [uzytkownikId], references: [id], onDelete: Cascade)
-  produkt          Produkt              @relation(fields: [produktId], references: [id], onDelete: Cascade) // ZMIANA
+  id             Int      @id @default(autoincrement())
+  dataRezerwacji DateTime @default(now())
+  produktId      Int      @unique
+  produkt        Produkt  @relation(fields: [produktId], references: [id])
+  uzytkownikId   Int
+  uzytkownik     user     @relation(fields: [uzytkownikId], references: [id])
 
   @@map("Rezerwacje")
 }
 
-enum StatusRezerwacjiEnum {
-  Aktywna
-  Anulowana
-  Zakonczona
-
-  @@map("status_rezerwacji_enum")
-}
-
 model ZgloszenieProduktu {
-  id                         Int                  @id @default(autoincrement()) @map("ID_Zgloszenia_Produktu")
-  nazwaProduktuTekst         String               @map("Nazwa_Produktu_Tekst")
-  typProduktuTekst           String?              @map("Typ_Produktu_Tekst")
-  identyfikatorProduktuTekst String?              @map("Identyfikator_Produktu_Tekst")
-  stanOpis                   String               @map("Stan_Opis")
-  opisDodatkowy              String?              @map("Opis_Dodatkowy")
-  dataZgloszenia             DateTime             @default(now()) @map("Data_Zgloszenia")
-  statusZgloszenia           StatusZgloszeniaEnum @default(Nowe) @map("Status_Zgloszenia")
-  decyzjaAdminaOpis          String?              @map("Decyzja_Admina_Opis")
-  dataDecyzji                DateTime?            @map("Data_Decyzji")
-  uzytkownikZglaszajacyId    Int                  @map("ID_Uzytkownika_Zglaszajacego")
-  adminOceniajacyId          Int?                 @map("ID_Admina_Oceniajacego")
-  produktPoDodaniuId         Int?                 @unique(map: "ZgloszProd_Produkt_UN") @map("ID_Produktu_Po_Dodaniu")
-
-  uzytkownikZglaszajacy user     @relation("ZgloszeniaZglaszajacego", fields: [uzytkownikZglaszajacyId], references: [id], onDelete: Cascade)
-  adminOceniajacy       user?    @relation("ZgloszeniaOcenione", fields: [adminOceniajacyId], references: [id], onDelete: SetNull)
-  produktPoDodaniu      Produkt? @relation("ProduktZeZgloszenia", fields: [produktPoDodaniuId], references: [id], onDelete: SetNull)
+  id                         Int       @id @default(autoincrement()) @map("ID_Zgloszenia_Produktu")
+  nazwaProduktuTekst         String    @map("Nazwa_Produktu_Tekst")
+  typProduktuTekst           String?   @map("Typ_Produktu_Tekst")
+  identyfikatorProduktuTekst String?   @map("Identyfikator_Produktu_Tekst")
+  stanOpis                   String    @map("Stan_Opis")
+  opisDodatkowy              String?   @map("Opis_Dodatkowy")
+  dataZgloszenia             DateTime  @default(now()) @map("Data_Zgloszenia")
+  statusZgloszenia           String    @default("Nowe") @map("Status_Zgloszenia")
+  decyzjaAdminaOpis          String?   @map("Decyzja_Admina_Opis")
+  dataDecyzji                DateTime? @map("Data_Decyzji")
+  uzytkownikZglaszajacyId    Int       @map("ID_Uzytkownika_Zglaszajacego")
+  adminOceniajacyId          Int?      @map("ID_Admina_Oceniajacego")
+  produktPoDodaniuId         Int?      @unique(map: "ZgloszProd_Produkt_UN") @map("ID_Produktu_Po_Dodaniu")
+  produktPoDodaniu           Produkt?  @relation("ProduktZeZgloszenia", fields: [produktPoDodaniuId], references: [id])
+  adminOceniajacy            user?     @relation("ZgloszeniaOcenione", fields: [adminOceniajacyId], references: [id])
+  uzytkownikZglaszajacy      user      @relation("ZgloszeniaZglaszajacego", fields: [uzytkownikZglaszajacyId], references: [id], onDelete: Cascade)
 
   @@map("ZgloszeniaProduktow")
-}
-
-enum StatusZgloszeniaEnum {
-  Nowe
-  W_ocenie      @map("W ocenie")
-  Zaakceptowane
-  Odrzucone
-
-  @@map("status_zgloszenia_enum")
 }
 
 model Koszyk {
@@ -454,13 +397,10 @@ model PozycjaKoszyka {
   id        Int     @id @default(autoincrement()) @map("ID_Pozycji_Koszyka")
   ilosc     Int     @default(1)
   koszykId  Int     @map("ID_Koszyka")
-  produktId Int     @map("ID_Produktu") // ZMIANA
+  produktId Int     @map("ID_Produktu")
+  produkt   Produkt @relation(fields: [produktId], references: [id], onDelete: Cascade)
   koszyk    Koszyk  @relation(fields: [koszykId], references: [id], onDelete: Cascade)
-  produkt   Produkt @relation(fields: [produktId], references: [id], onDelete: Cascade) // ZMIANA
 
-  @@unique([koszykId, produktId], map: "PozKosz_Uniq_Kosz_Produkt") // ZMIANA
+  @@unique([koszykId, produktId], map: "PozKosz_Uniq_Kosz_Produkt")
   @@map("PozycjeKoszyka")
 }
-
-// Stary model Ksiazka, StatusKsiazki, ZdjecieKsiazki, ZgloszenieKsiazki są usunięte,
-// ponieważ ich funkcjonalność została przeniesiona do Produkt, StatusProduktu, ZdjecieProduktu, ZgloszenieProduktu i DaneKsiazki.
