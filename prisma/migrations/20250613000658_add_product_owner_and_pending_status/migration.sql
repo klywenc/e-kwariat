@@ -78,8 +78,10 @@ CREATE TABLE "Produkty" (
     "Czy_Nowosc" BOOLEAN NOT NULL DEFAULT false,
     "typProduktuId" INTEGER NOT NULL,
     "ID_Statusu_Produktu" INTEGER NOT NULL,
+    "ID_Wlasciciela" INTEGER NOT NULL,
     CONSTRAINT "Produkty_typProduktuId_fkey" FOREIGN KEY ("typProduktuId") REFERENCES "TypyProduktow" ("ID_Typu_Produktu") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Produkty_ID_Statusu_Produktu_fkey" FOREIGN KEY ("ID_Statusu_Produktu") REFERENCES "StatusyProduktow" ("ID_Statusu_Produktu") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Produkty_ID_Statusu_Produktu_fkey" FOREIGN KEY ("ID_Statusu_Produktu") REFERENCES "StatusyProduktow" ("ID_Statusu_Produktu") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Produkty_ID_Wlasciciela_fkey" FOREIGN KEY ("ID_Wlasciciela") REFERENCES "Uzytkownicy" ("ID_Uzytkownika") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -427,6 +429,9 @@ CREATE UNIQUE INDEX "DaneKsiazekObcojezycznych_ID_Produktu_key" ON "DaneKsiazekO
 
 -- CreateIndex
 CREATE UNIQUE INDEX "DaneZabawek_ID_Produktu_key" ON "DaneZabawek"("ID_Produktu");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MetodyDostawy_nazwa_key" ON "MetodyDostawy"("nazwa");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PozZam_Uniq_Zam_Produkt" ON "PozycjeZamowien"("ID_Zamowienia", "ID_Produktu");

@@ -41,6 +41,10 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
+  }
   try {
     const data = await request.json();
 

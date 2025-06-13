@@ -23,7 +23,6 @@ model user {
   koszyk                        Koszyk?
   rezerwacje                    Rezerwacja[]
   zamowienia                    Zamowienie[]
-  ocenioneZgloszeniaPrzezAdmina ZgloszenieProduktu[] @relation("ZgloszeniaOcenione")
   zgloszeniaPrzezUzytkownika    ZgloszenieProduktu[] @relation("ZgloszeniaZglaszajacego")
 
   @@map("Uzytkownicy")
@@ -276,7 +275,7 @@ model ZdjecieProduktu {
 
 model MetodaDostawy {
   id                      Int          @id @default(autoincrement()) @map("ID_Metody_Dostawy")
-  nazwa                   String
+  nazwa                   String       @unique 
   koszt                   Decimal
   przewidywanyCzasDostawy String?      @map("Przewidywany_Czas_Dostawy")
   czyAktywna              Boolean      @default(true) @map("Czy_Aktywna")

@@ -19,6 +19,10 @@ const TYP_ID_POZOSTALE = 12;
 // --- Koniec zmiennych pomocniczych ---
 
 export async function PUT(request, { params }) {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== 'ADMIN') {
+        return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
+    }
     try {
         const { id } = params;
         const data = await request.json();
@@ -173,6 +177,10 @@ export async function DELETE(request, { params }) {
     // Twoja funkcja DELETE pozostaje bez zmian.
     // Prisma dzięki `onDelete: Cascade` w modelu `ZdjecieProduktu`
     // automatycznie usunie powiązane zdjęcia, gdy produkt jest usuwany.
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== 'ADMIN') {
+        return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
+    }
     try {
         const { id } = params;
         const produktIdInt = parseInt(id, 10);

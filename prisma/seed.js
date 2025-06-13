@@ -1,6 +1,7 @@
 // prisma/seed.js
 const { PrismaClient, Role } = require('@prisma/client');
 const prisma = new PrismaClient();
+const bcrypt = require('bcryptjs');
 
 async function main() {
   console.log(`Start seeding ...`);
@@ -24,6 +25,7 @@ async function main() {
     create: { nazwa: 'Zarezerwowany' },
   });
   console.log('Created product statuses.');
+  
 
   // --- Typy Produktów ---
 const typKsiazka = await prisma.typProduktu.upsert({
@@ -135,6 +137,50 @@ console.log('Created product types.');
     create: { nazwa: 'Dla dzieci', opis: 'Literatura dziecięca.' },
   });
   console.log(`Created genres.`);
+
+  // --- NOWA SEKCJA: Metody Dostawy ---
+  await prisma.metodaDostawy.upsert({
+    where: { nazwa: 'Kurier DPD' },
+    update: {},
+    create: {
+      nazwa: 'Kurier DPD',
+      koszt: 15.99,
+      przewidywanyCzasDostawy: '1-2 dni robocze',
+      czyAktywna: true,
+    },
+  });
+  await prisma.metodaDostawy.upsert({
+    where: { nazwa: 'Paczkomaty InPost' },
+    update: {},
+    create: {
+      nazwa: 'Paczkomaty InPost',
+      koszt: 12.99,
+      przewidywanyCzasDostawy: '1-2 dni robocze',
+      czyAktywna: true,
+    },
+  });
+  await prisma.metodaDostawy.upsert({
+    where: { nazwa: 'Odbiór osobisty' },
+    update: {},
+    create: {
+      nazwa: 'Odbiór osobisty',
+      koszt: 0.00,
+      przewidywanyCzasDostawy: 'W ciągu 24h',
+      czyAktywna: true,
+    },
+  });
+  await prisma.metodaDostawy.upsert({
+    where: { nazwa: 'Poczta Polska (nieaktywna)' },
+    update: {},
+    create: {
+      nazwa: 'Poczta Polska (nieaktywna)',
+      koszt: 9.99,
+      przewidywanyCzasDostawy: '3-5 dni roboczych',
+      czyAktywna: false, // Przykład nieaktywnej metody
+    },
+  });
+  console.log('Created delivery methods.');
+  // --- KONIEC NOWEJ SEKCJI ---
 
   // --- Produkty (zamiast Ksiazki) ---
 
@@ -298,13 +344,24 @@ console.log('Created product types.');
 
   console.log(`Created/updated products.`);
 
-  // --- Użytkownicy ---
+  // --- Użytkownicy (Z HASHOWANIEM HASEŁ) ---
+  
+  // Hashowanie haseł
+  const hashedPasswordUser = await bcrypt.hash('password123_seed', 10);
+  const hashedPasswordAdmin = await bcrypt.hash('adminpassword_seed', 10);
+
   const user1 = await prisma.user.upsert({
     where: { email: 'test@example.com' },
-    update: { nazwisko: 'Kowalski', name: 'Jan', role: Role.USER, czyAktywny: true },
+    update: { 
+        nazwisko: 'Kowalski', 
+        name: 'Jan', 
+        role: Role.USER, 
+        czyAktywny: true 
+        // Nie aktualizujemy hasła przy każdym upsert, chyba że to celowe
+    },
     create: {
       email: 'test@example.com',
-      password: 'password123_seed', // PAMIĘTAJ: Hashuj!
+      password: hashedPasswordUser, // <--- UŻYJ ZAHASHOWANEGO HASŁA
       nazwisko: 'Kowalski',
       name: 'Jan',
       role: Role.USER,
@@ -314,10 +371,15 @@ console.log('Created product types.');
 
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
-    update: { nazwisko: 'Admin', name: 'Super', role: Role.ADMIN, czyAktywny: true },
+    update: { 
+        nazwisko: 'Admin', 
+        name: 'Super', 
+        role: Role.ADMIN, 
+        czyAktywny: true 
+    },
     create: {
       email: 'admin@example.com',
-      password: 'adminpassword_seed', // PAMIĘTAJ: Hashuj!
+      password: hashedPasswordAdmin, // <--- UŻYJ ZAHASHOWANEGO HASŁA
       nazwisko: 'Admin',
       name: 'Super',
       role: Role.ADMIN,
