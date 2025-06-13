@@ -1,3 +1,4 @@
+// src/app/layout.js
 import { Geist, Geist_Mono } from "next/font/google";
 import ClientSessionProvider from "./components/ClientSessionProvider";
 import "./globals.css";
@@ -14,17 +15,28 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 });
 
+// Możesz dodać domyślne metadane tutaj
+export const metadata = {
+  title: 'E-Kwariat',
+  description: 'Twoje miejsce na książki z drugiej ręki i nie tylko.',
+};
+
 export default function RootLayout({ children, session }) {
     return (
-        <html lang="en">
+        <html>
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+                className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100`} // Dodano tło dla spójności
             >
                 <ClientSessionProvider session={session}>
-                    <Navbar />
-                    <main >{children}</main>
+                    {/* Główny kontener layoutu flex */}
+                    <div className="flex flex-col min-h-screen">
+                        <Navbar />
+                        <main className="flex-grow">
+                            {children}
+                        </main>
+                        <Footer />
+                    </div>
                 </ClientSessionProvider>
-                <Footer />
             </body>
         </html>
     );
