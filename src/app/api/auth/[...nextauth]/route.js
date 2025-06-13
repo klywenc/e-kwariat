@@ -26,11 +26,19 @@ export const authOptions = {
     ],
     callbacks: {
         async jwt({ token, user }) {
-            if (user) token.role = user.role;
+            // Przy pierwszym logowaniu, dodajemy ID i rolę do tokenu
+            if (user) {
+                token.id = user.id; // <-- DODAJ TĘ LINIĘ
+                token.role = user.role;
+            }
             return token;
         },
         async session({ session, token }) {
-            session.user.role = token.role;
+            // W każdej sesji, dodajemy ID i rolę z tokenu do obiektu session.user
+            if (token && session.user) {
+                session.user.id = token.id; // <-- DODAJ TĘ LINIĘ
+                session.user.role = token.role;
+            }
             return session;
         },
     },
